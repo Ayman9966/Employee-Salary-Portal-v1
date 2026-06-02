@@ -1,0 +1,6 @@
+{
+  "name": "Remix: Employee Salary Portal / v1",
+  "description": "An application for employees to view salary slips and manage preferences",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
