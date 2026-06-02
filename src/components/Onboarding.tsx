@@ -441,9 +441,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               The Professional Employee Payroll Portal for Modern Workforces.
             </h1>
             
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl">
-              Equip your staff with a secure website to view and download their monthly salary slips, review payment breakdowns, and view historical records. Fully white-labeled to match your brand, keeping data completely isolated in your personal Google environment.
-            </p>
+            <div className="space-y-3">
+              <p className="text-slate-600 text-sm sm:text-base font-semibold leading-relaxed max-w-2xl">
+                Give your team instant, private access to their payslips — in English.
+              </p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#003d9b]" /> No servers. No setup fees. No catch.
+              </p>
+            </div>
 
             {/* Main Interactive Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -455,22 +460,28 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 }}
                 className="h-12 px-7 bg-[#003d9b] hover:bg-[#002f74] text-white font-extrabold rounded-xl transition-all shadow-md shadow-blue-900/10 hover:shadow-lg active:scale-[0.99] cursor-pointer text-xs uppercase tracking-wider flex items-center justify-center gap-2 group flex-shrink-0"
               >
-                <span>{companyName ? "Resume Active Setup" : "Deploy Your Custom Portal"}</span>
+                <span>Get Started Free</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <button
                 type="button"
-                onClick={() => setShowLoginModal(true)}
-                className="h-12 px-6 bg-white hover:bg-slate-50 text-[#003d9b] border border-slate-200 font-bold rounded-xl transition-all shadow-sm active:scale-[0.99] cursor-pointer text-xs uppercase tracking-wider flex items-center justify-center gap-2"
+                onClick={handleLaunchWithDemoSandbox}
+                className="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/60 font-bold rounded-xl transition-all cursor-pointer text-xs flex items-center justify-center gap-1.5 active:scale-[0.99]"
               >
-                <Lock className="w-4 h-4 text-[#003d9b]" />
-                <span>Sign In to Existing Portal</span>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>View Demo</span>
               </button>
             </div>
 
+            <p className="text-[11px] text-slate-500 font-semibold italic flex items-center gap-1.5">
+              <span>🏷️</span>
+              <span className="font-bold text-[#003d9b]">Early Access</span>
+              <span>— Free for founding teams</span>
+            </p>
+
             {/* Quick trust metrics */}
-            <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] text-slate-500 font-medium pt-2">
+            <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] text-slate-500 font-medium pt-2 border-t border-slate-100">
               <span className="flex items-center gap-1 font-bold">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Free Ready Spreadsheet Template
               </span>
