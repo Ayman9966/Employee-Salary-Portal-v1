@@ -111,6 +111,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [loginAdminPassword, setLoginAdminPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginSubmitting, setLoginSubmitting] = useState(false);
+  const [loginInviteCopied, setLoginInviteCopied] = useState(false);
 
   const isCompanySetup = !!gasUrl.trim();
 
@@ -363,25 +364,128 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     }
   };
 
+  const handleClearFields = () => {
+    setCompanyName('');
+    setWhatsapp('');
+    setEmail('');
+    setCompanySize('');
+    setGasUrl('');
+    setTestStatus('idle');
+    setValidationErrors({});
+    setSubmitError('');
+    setDuplicateWarning(null);
+    localStorage.removeItem('salaryportal_onboard_companyName');
+    localStorage.removeItem('salaryportal_onboard_whatsapp');
+    localStorage.removeItem('salaryportal_onboard_email');
+    localStorage.removeItem('salaryportal_onboard_companySize');
+    localStorage.removeItem('salaryportal_onboard_gasUrl');
+  };
+
+  const handleOpenNewOnboarding = () => {
+    // Prioritize clean state by cleaning up any pre-filled mock/demo sandbox information from the form
+    handleClearFields();
+    setShowFormModal(true);
+  };
+
   const handleForceRefreshAndKeepData = () => {
     window.location.reload();
   };
 
   const handleLaunchWithDemoSandbox = () => {
-    const hasUnsavedCustomInputs = companyName.trim() || email.trim() || gasUrl.trim() || whatsapp.trim();
-    if (hasUnsavedCustomInputs) {
-      const confirmDemo = window.confirm(
-        "You have already started typing your own custom setup details. Do you want to replace your inputs with the demo sandbox credentials? Click Cancel to keep your progress."
-      );
-      if (!confirmDemo) return;
-    }
     const demoUrl = 'https://script.google.com/macros/s/AKfycbwgaIAX4V4bLMTfoyl_D83sKt2HXw6vqqMftJPEU-aWgeh4Te5oFvoQTUEsX4m2DBrbnQ/exec';
-    setGasUrl(demoUrl);
-    setCompanyName('AirSlip Logistics Ltd');
-    setEmail('admin@airsliplogistics.com');
-    setWhatsapp('+44755123456');
-    setCompanySize('11-50 Members');
-    setShowFormModal(true);
+    
+    // Seed exactly 3 clean mock employees and slips in the local storage DB for the AirSlip Demo experience
+    const demoEmployees = [
+      { accessCode: '1234', employeeId: 'ARC001', name: 'Alexander Sterling', title: 'Principal Architect', department: 'Technology', joiningDate: '12/01/2022' },
+      { accessCode: '5678', employeeId: 'MNG042', name: 'Elizabeth Vance', title: 'HR Business Partner', department: 'Human Resources', joiningDate: '05/03/2023' },
+      { accessCode: '9012', employeeId: 'FIN088', name: 'Marcus Aurelius', title: 'Financial Controller', department: 'Finance', joiningDate: '15/09/2021' }
+    ];
+
+    const demoSlips = [
+      {
+        accessCode: '1234',
+        employeeId: 'ARC001',
+        employeeName: 'Alexander Sterling',
+        month: 'March',
+        year: 2026,
+        amount: 9450,
+        paymentDate: '01/03/2026',
+        status: 'Processed',
+        daysPayable: 30,
+        comments: 'Excellent delivery on Project Phoenix.\nKeep up the high standard of architecture work.',
+        earnings: [
+          { label: 'Basic Salary', val: 7500 },
+          { label: 'House Rent', val: 1500 },
+          { label: 'Transport', val: 500 },
+          { label: 'Performance Bonus', val: 1000 }
+        ],
+        deductions: [
+          { label: 'Income Tax', val: 600 },
+          { label: 'Social Security', val: 300 },
+          { label: 'Medical Insurance', val: 150 }
+        ]
+      },
+      {
+        accessCode: '5678',
+        employeeId: 'MNG042',
+        employeeName: 'Elizabeth Vance',
+        month: 'March',
+        year: 2026,
+        amount: 7200,
+        paymentDate: '01/03/2026',
+        status: 'Processed',
+        daysPayable: 30,
+        comments: 'Adjustment for annual leave carried over.',
+        earnings: [
+          { label: 'Basic Salary', val: 6000 },
+          { label: 'House Rent', val: 1000 },
+          { label: 'Transport', val: 500 },
+          { label: 'Performance Bonus', val: 500 }
+        ],
+        deductions: [
+          { label: 'Income Tax', val: 450 },
+          { label: 'Social Security', val: 250 },
+          { label: 'Medical Insurance', val: 100 }
+        ]
+      },
+      {
+        accessCode: '9012',
+        employeeId: 'FIN088',
+        employeeName: 'Marcus Aurelius',
+        month: 'March',
+        year: 2026,
+        amount: 8800,
+        paymentDate: '01/03/2026',
+        status: 'Under Review',
+        daysPayable: 30,
+        comments: 'Pending final audit approval for quarterly audit bonus.',
+        earnings: [
+          { label: 'Basic Salary', val: 7000 },
+          { label: 'House Rent', val: 1500 },
+          { label: 'Transport', val: 500 },
+          { label: 'Performance Bonus', val: 800 }
+        ],
+        deductions: [
+          { label: 'Income Tax', val: 600 },
+          { label: 'Social Security', val: 300 },
+          { label: 'Medical Insurance', val: 100 }
+        ]
+      }
+    ];
+
+    localStorage.setItem('payslip_db_employees', JSON.stringify(demoEmployees));
+    localStorage.setItem('payslip_db_slips', JSON.stringify(demoSlips));
+    localStorage.setItem('payslip_db_initialized', 'true');
+    localStorage.setItem('is_demo_mode', 'true');
+
+    // Instantly launch the portal with the mock/demo sandbox coordinates, bypassing registration and setup forms!
+    onComplete({
+      companyName: 'AirSlip Demo',
+      whatsapp: '+44755123456',
+      email: 'admin@demo.com',
+      companySize: '11-50 Members',
+      gasUrl: demoUrl
+    });
   };
 
   return (
@@ -434,18 +538,18 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           {/* Left Hero Column */}
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/10 text-blue-800 text-xs font-bold border border-blue-200/40">
-              <Database className="w-3.5 h-3.5" /> Google Sheets Backend Integration
+              <Database className="w-3.5 h-3.5 animate-pulse" /> Direct Google Drive Secure Integration
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#041b3c] tracking-tight leading-[1.1]">
-              The Professional Employee Payroll Portal for Modern Workforces.
+              The Elite Employee Payroll Portal That Works Directly From Your Google Sheets.
             </h1>
             
             <div className="space-y-3">
               <p className="text-slate-600 text-sm sm:text-base font-semibold leading-relaxed max-w-2xl">
-                Give your team instant, private access to their payslips — in English.
+                Empower your workforce with beautiful, mobile-optimized payslips. Completely secure, private, and automated—giving employees instant clarity on their earnings while keeping your confidential payroll data fully isolated within your original Google ecosystem.
               </p>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <p className="text-xs font-bold text-slate-400 separator-dot uppercase tracking-widest flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#003d9b]" /> No servers. No setup fees. No catch.
               </p>
             </div>
@@ -454,10 +558,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
               <button
                 type="button"
-                onClick={() => {
-                  validateFields();
-                  setShowFormModal(true);
-                }}
+                onClick={handleOpenNewOnboarding}
                 className="h-12 px-7 bg-[#003d9b] hover:bg-[#002f74] text-white font-extrabold rounded-xl transition-all shadow-md shadow-blue-900/10 hover:shadow-lg active:scale-[0.99] cursor-pointer text-xs uppercase tracking-wider flex items-center justify-center gap-2 group flex-shrink-0"
               >
                 <span>Get Started Free</span>
@@ -483,13 +584,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             {/* Quick trust metrics */}
             <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] text-slate-500 font-medium pt-2 border-t border-slate-100">
               <span className="flex items-center gap-1 font-bold">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Free Ready Spreadsheet Template
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Done-For-You Spreadsheet Template
               </span>
               <span className="flex items-center gap-1 font-bold">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Zero Software Maintenance Cost
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Absolute Zero Software Maintenance Fees
               </span>
               <span className="flex items-center gap-1 font-bold">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Interactive Arab/English System
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Bilingual English & Space-Optimized Arabic Layouts
               </span>
             </div>
           </div>
@@ -551,11 +652,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
         {/* Step-by-Step Interactive Guide: NO manual apps script edit */}
         <section id="interactive-steps" className="bg-white rounded-2xl border border-slate-200/75 p-6 md:p-8 shadow-xs mb-12 space-y-8 scroll-mt-6">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <span className="text-[9px] uppercase font-bold text-[#003d9b] bg-[#e8edff] px-3 py-1 rounded-full border border-blue-100">Zero Technical Code Setup</span>
-            <h2 className="text-xl md:text-2xl font-bold text-[#041b3c] tracking-tight">Set Up Your Secure Portal in 3 Minutes</h2>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              We provide a complete master spreadsheet template so you do not have to write or patch any App Script development code yourself. Simply clone, deploy, and paste.
+          <div className="text-center max-w-xl mx-auto space-y-3">
+            <span className="text-[9px] uppercase font-bold text-[#003d9b] bg-[#e8edff] px-3.5 py-1 rounded-full border border-blue-100 tracking-wider">Zero-Code SaaS Deployment</span>
+            <h2 className="text-xl md:text-3xl font-black text-[#041b3c] tracking-tight">Launch Your Custom Portal in Under 3 Minutes</h2>
+            <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
+              Ditch expensive legacy databases. AirSlip syncs directly onto your existing Google Spreadsheet rows. No servers, no setup costs — just pure automated payroll convenience.
             </p>
           </div>
 
@@ -567,9 +668,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <div className="w-8 h-8 rounded-full bg-[#f1f3ff] text-[#003d9b] font-bold text-xs flex items-center justify-center">
                   1
                 </div>
-                <h3 className="font-bold text-sm text-[#041b3c]">Get the Ready Template</h3>
+                <h3 className="font-extrabold text-sm text-[#041b3c]">Claim Your Premium Template</h3>
                 <p className="text-xs text-[#565f6a] leading-relaxed">
-                  Open our preconfigured spreadsheet template copy and click the <strong className="text-slate-800">Use Template</strong> button at the top-right to save a copy inside your Google Drive.
+                  Open our master spreadsheet ledger and click <strong className="text-slate-800">Use Template</strong> to safely duplicate it directly into your Google Drive container.
                 </p>
               </div>
               <a 
@@ -589,12 +690,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <div className="w-8 h-8 rounded-full bg-[#f1f3ff] text-[#003d9b] font-bold text-xs flex items-center justify-center">
                   2
                 </div>
-                <h3 className="font-bold text-sm text-[#041b3c]">Deploy as a Web App</h3>
+                <h3 className="font-extrabold text-sm text-[#041b3c]">Instant One-Click Deploy</h3>
                 <p className="text-xs text-[#565f6a] leading-relaxed">
-                  In your spreadsheet menu, open <strong className="text-slate-800">Extensions &gt; Apps Script</strong>. In the top-right corner, click <strong className="text-[#003d9b]">Deploy &gt; New Deployment</strong>. Select the <strong className="text-slate-800">Web App</strong> type.
+                  Inside your spreadsheet, navigate to <strong className="text-slate-800">Extensions &gt; Apps Script</strong>. Simply press <strong className="text-[#003d9b]">Deploy &gt; New Deployment</strong> and select the Web App type.
                 </p>
               </div>
-              <span className="text-[10px] text-slate-400 font-semibold font-mono">No coding tasks required</span>
+              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg w-max tracking-wide">Automatic Syncing</span>
             </div>
 
             {/* Step 3 */}
@@ -603,14 +704,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 font-bold text-xs flex items-center justify-center">
                   3
                 </div>
-                <h3 className="font-bold text-sm text-[#041b3c]">Approve & Connect</h3>
+                <h3 className="font-extrabold text-sm text-[#041b3c]">Activate Your Custom URL</h3>
                 <p className="text-xs text-[#565f6a] leading-relaxed">
-                  Set **Execute as** to <strong className="text-slate-800">"Me"</strong> and **Who has access** to <strong className="text-slate-800">"Anyone"</strong>. Deploy, authorize permissions, and copy the produced <strong className="text-emerald-700">Web App URL</strong> to activate below!
+                  Choose Executed as <strong className="text-slate-800">"Me"</strong> and Access as <strong className="text-slate-800">"Anyone"</strong>. Click deploy and paste your Web App URL here to instantly start!
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setShowFormModal(true)}
+                onClick={handleOpenNewOnboarding}
                 className="text-left text-xs text-[#003d9b] font-bold hover:underline flex items-center gap-0.5"
               >
                 <span>Connect your URL Now</span>
@@ -635,9 +736,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-[#003d9b]">
               <Settings className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-base text-slate-900">Comprehensive Admin Capabilities</h3>
+            <h3 className="font-extrabold text-base text-slate-900">Elite Operations Control Hub</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Centralized platform parameters. The HR Administrator is empowered with complete login rules, access code search logs, roster definitions, locked file exports, and zero infrastructure database setups.
+              Take complete command of your payroll operations. Establish secure administrator credentials, monitor real-time sync status, override employee roster directories, and inspect instant duplicate/irregularity audits without database clutter.
             </p>
           </div>
 
@@ -645,9 +746,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-[#c4d2ff]">
               <UserCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-base text-white">Advanced Workforce Portal</h3>
+            <h3 className="font-extrabold text-base text-white">Delightful Bilingual Workforce Portal</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Provides an effortless portal for employees with support for English and Arabic layouts, printable payslip PDF reports, interactive financial wages analytics, and total direct multi-month logs.
+              Excite your team with an elegant digital home. Staff can securely sign in to view high-fidelity bilingual English/Arabic layouts, explore dynamic visual earnings graphs, review historical payroll records, and print pixel-perfect PDF payslips instantly.
             </p>
           </div>
         </section>
@@ -700,8 +801,20 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     <X className="w-4 h-4" />
                   </button>
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-[#003d9b] bg-[#f1f3ff] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider inline-block">Enterprise Activation</span>
+                   <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] text-[#003d9b] bg-[#f1f3ff] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider inline-block">Enterprise Activation</span>
+                      {(companyName || email || gasUrl || whatsapp) && (
+                        <button
+                          type="button"
+                          onClick={handleClearFields}
+                          className="text-[10px] text-red-600 font-bold hover:text-red-800 hover:underline transition-colors flex items-center gap-1 cursor-pointer"
+                          title="Clear all fields to start fresh"
+                        >
+                          (Clear All Fields)
+                        </button>
+                      )}
+                    </div>
                     <h3 className="text-base sm:text-lg font-bold text-[#041b3c] tracking-tight">Onboard Your Company Portal</h3>
                   </div>
                 </div>
@@ -1021,7 +1134,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     <Lock className="w-4 h-4 text-[#003d9b]" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[#041b3c] tracking-tight">Access Deployed Portal</h3>
+                    <h3 className="text-sm font-bold text-[#041b3c] tracking-tight">
+                      {isCompanySetup ? `Login to: ${localStorage.getItem('company_name') || localStorage.getItem('salaryportal_onboard_companyName') || companyName || 'Workspace'}` : "Access Deployed Portal"}
+                    </h3>
                     <p className="text-[10px] text-slate-400 font-semibold uppercase font-mono tracking-wider">Fast Connection Console</p>
                   </div>
                 </div>
@@ -1067,15 +1182,19 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 </div>
 
                 {/* If company is setup, show a nice indicator badge */}
-                {isCompanySetup && (
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                    <div className="overflow-hidden">
-                      <p className="text-[9px] font-extrabold text-emerald-805 uppercase tracking-wider">Connected Portal Active</p>
-                      <p className="text-[10px] font-semibold text-slate-550 truncate max-w-[280px]">{gasUrl}</p>
+                {isCompanySetup && (() => {
+                  const activeCompanyName = localStorage.getItem('company_name') || localStorage.getItem('salaryportal_onboard_companyName') || companyName || 'Active Company Portal';
+                  
+                  return (
+                    <div className="p-3.5 rounded-2xl bg-[#f1f3ff]/40 border border-blue-500/10 flex items-center gap-2.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      <div className="overflow-hidden flex-1">
+                        <p className="text-[9px] font-extrabold text-[#003d9b] uppercase tracking-wider">Active Workspace Connected</p>
+                        <p className="text-xs font-bold text-[#041b3c] truncate max-w-[280px]">{activeCompanyName}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Conditional Fields based on tab Selection */}
                 {loginTab === 'staff' ? (

@@ -17,17 +17,27 @@ import { motion, AnimatePresence } from 'motion/react';
 import { formatAmount } from './lib/format';
 import { AdminPanel } from './components/AdminPanel';
 import { Onboarding } from './components/Onboarding';
-import { Lock } from 'lucide-react';
+import { Lock, AlertTriangle } from 'lucide-react';
 
 export default function App() {
   const [accessCode, setAccessCode] = useState<string | null>(localStorage.getItem('access_code'));
-  const [tempCode, setTempCode] = useState('');
+  const [isDemoMode, setIsDemoMode] = useState(() => localStorage.getItem('is_demo_mode') === 'true');
+  const [tempCode, setTempCode] = useState(() => {
+    return localStorage.getItem('is_demo_mode') === 'true' ? '1234' : '';
+  });
+
+  useEffect(() => {
+    if (isDemoMode) {
+      setTempCode('1234');
+    }
+  }, [isDemoMode]);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
   const [gasUrlConfigured, setGasUrlConfigured] = useState(() => {
     return !!(localStorage.getItem('gas_url') || '').trim();
   });
-  const [joinedWorkspace, setJoinedWorkspace] = useState('');
+  const [joinedWorkspace, setJoinedWorkspace] = useState(() => localStorage.getItem('company_name') || '');
+  const [shareInviteCopied, setShareInviteCopied] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
   // Check if tenant is blocked by super admin on load
@@ -120,6 +130,7 @@ export default function App() {
     localStorage.setItem('company_size', config.companySize);
     setGasUrlConfigured(true);
     setJoinedWorkspace(config.companyName);
+    setIsDemoMode(localStorage.getItem('is_demo_mode') === 'true');
   };
 
   const [historySlips, setHistorySlips] = useState<any[]>(getFromCache<any[]>('slips') || []);
@@ -218,6 +229,10 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    if (isDemoMode) {
+      handlePerformFullReset();
+      return;
+    }
     setShowLogoutDialog(true);
   };
 
@@ -244,6 +259,7 @@ export default function App() {
     localStorage.removeItem('payslip_db_employees');
     localStorage.removeItem('payslip_db_slips');
     localStorage.removeItem('payslip_db_initialized');
+    localStorage.removeItem('is_demo_mode');
     
     // clear memory / cache
     Object.keys(localStorage).forEach(key => {
@@ -259,6 +275,7 @@ export default function App() {
     setAdminError(null);
     setGasUrlConfigured(false);
     setJoinedWorkspace('');
+    setIsDemoMode(false);
     setShowLogoutDialog(false);
     if (window.location.hash.toLowerCase() === '#admin') {
       window.location.hash = '';
@@ -302,6 +319,37 @@ export default function App() {
       <AnimatePresence>
         {showSplash && <SplashScreen />}
       </AnimatePresence>
+
+      {isDemoMode && (
+        <div className="bg-[#003d9b] text-white px-4 py-2.5 sm:py-3 text-[11px] sm:text-xs flex flex-col md:flex-row items-center justify-between gap-3 shadow-md border-b border-indigo-500/25 z-50 relative animate-in slide-in-from-top duration-300">
+          <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
+            <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block"></span>
+              Demo Mode
+            </span>
+            <span className="font-bold text-blue-100">
+              Demo Workspace:
+            </span>
+            <span className="font-semibold text-white">
+              AirSlip Demo
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] sm:text-[11px]">
+            <span className="text-slate-200">
+              🎫 Employee Test Code: <strong className="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">1234</strong>
+            </span>
+            <span className="text-slate-200">
+              🔑 Admin Test: <span className="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">admin@enterprise.com</span> / <span className="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">admin123</span>
+            </span>
+            <button
+              onClick={handlePerformFullReset}
+              className="ml-2 bg-red-650 hover:bg-red-700 bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-3 py-1 rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-95 duration-150 cursor-pointer shadow-sm shadow-red-950/20"
+            >
+              Leave Demo
+            </button>
+          </div>
+        </div>
+      )}
 
       {!accessCode ? (
         <div className="bg-[#f9f9ff] min-h-screen flex items-center justify-center px-6">
@@ -361,14 +409,36 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => {
-                      setIsAdminRoute(false);
-                      window.location.hash = '';
+                       setIsAdminRoute(false);
+                       window.location.hash = '';
                     }}
-                    className="w-full text-center text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors mt-4 block"
+                    className="w-full text-center text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors mt-4 block p-1"
                   >
                     ← Employee Portal
                   </button>
                 </form>
+
+                {/* Quick login button for admin if in demo mode */}
+                {isDemoMode && (
+                  <div className="mt-6 pt-5 border-t border-slate-100 space-y-2">
+                    <p className="text-[9px] text-[#003d9b] font-bold uppercase tracking-wider text-center">Quick Test Access Console</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdminEmail('admin@enterprise.com');
+                        setAdminPassword('admin123');
+                        // Instantly auto-log in for ultimate convenience
+                        localStorage.setItem('access_code', 'admin');
+                        setAccessCode('admin');
+                        setCurrentView('admin');
+                      }}
+                      className="w-full p-2.5 border border-amber-150 bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 rounded-xl text-[10px] font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer active:scale-[0.99] group"
+                    >
+                      <span className="text-slate-500 font-normal">Autofill & Login as Sandbox Admin</span>
+                      <span className="text-[#003d9b] uppercase group-hover:underline mt-0.5">Click here to log in instantly</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div>
@@ -376,18 +446,20 @@ export default function App() {
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                     <Lock className="w-7 h-7" />
                   </div>
-                  <h1 className="text-2xl font-bold text-primary">Payslip Access</h1>
-                  <p className="text-secondary text-sm mt-2">
-                    {localStorage.getItem('company_name') 
-                      ? `Access portal for ${localStorage.getItem('company_name')}`
+                  <h1 className="text-2xl font-bold text-[#041b3c]">
+                    {joinedWorkspace ? `Login to: ${joinedWorkspace}` : "Payslip Access"}
+                  </h1>
+                  <p className="text-slate-500 text-sm mt-2">
+                    {joinedWorkspace 
+                      ? 'Please enter your personal access code to authenticate'
                       : 'Please enter your personal access code'}
                   </p>
                 </div>
                 
                 {joinedWorkspace && (
-                  <div className="mb-5 bg-emerald-50 text-emerald-800 p-3 rounded-xl border border-emerald-100 text-xs text-center font-bold flex items-center justify-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span>Connected: {joinedWorkspace}</span>
+                  <div className="mb-5 bg-emerald-50 text-emerald-800 p-3.5 rounded-xl border border-emerald-100 text-xs text-center font-bold flex items-center justify-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Workspace Connected: {joinedWorkspace}</span>
                   </div>
                 )}
                 
@@ -404,7 +476,7 @@ export default function App() {
                       placeholder="Access Code"
                       value={tempCode}
                       onChange={(e) => setTempCode(e.target.value)}
-                      className="w-full h-12 px-4 rounded-xl border border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 ease-in-out outline-none text-center text-lg tracking-widest font-mono"
+                      className="w-full h-12 px-4 rounded-xl border border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 ease-in-out outline-none text-center text-lg tracking-widest font-mono font-bold"
                       required
                     />
                   </div>
@@ -415,6 +487,38 @@ export default function App() {
                     UNLOCK DATA
                   </button>
                 </form>
+
+                {/* Quick login buttons for employee / admin if in demo mode */}
+                {isDemoMode && (
+                  <div className="mt-6 pt-5 border-t border-slate-100 space-y-2.5">
+                    <p className="text-[9px] text-[#003d9b] font-bold uppercase tracking-wider text-center">Quick Test Access Console</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTempCode('1234');
+                          localStorage.setItem('access_code', '1234');
+                          setAccessCode('1234');
+                        }}
+                        className="py-2.5 px-2 border border-blue-150 bg-blue-50 hover:bg-blue-100/70 text-[#003d9b] rounded-xl text-[10px] font-bold transition-all text-center flex flex-col justify-center items-center cursor-pointer active:scale-[0.98]"
+                      >
+                        <span className="text-slate-500 font-normal">Log in as Employee</span>
+                        <span className="tracking-wide">Use Code "1234"</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAdminRoute(true);
+                          window.location.hash = '#admin';
+                        }}
+                        className="py-2.5 px-2 border border-blue-150 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-[10px] font-bold transition-all text-center flex flex-col justify-center items-center cursor-pointer active:scale-[0.98]"
+                      >
+                        <span className="text-slate-500 font-normal">Log in as Admin</span>
+                        <span>Credentials Console</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>

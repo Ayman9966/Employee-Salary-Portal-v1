@@ -2,6 +2,7 @@
 
 export const getGasUrl = (): string => {
   if (typeof window === 'undefined') return '';
+  if (localStorage.getItem('is_demo_mode') === 'true') return '';
   return (localStorage.getItem('gas_url') || '').trim();
 };
 
