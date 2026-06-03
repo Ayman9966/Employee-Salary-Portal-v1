@@ -412,18 +412,6 @@ export default function App() {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 {lang === 'en' ? 'App Setup Active' : 'إعداد التطبيق نشط'}
               </span>
-              <div className="space-y-0.5">
-                <p className="text-xs font-bold text-white tracking-wide">
-                  {lang === 'en' 
-                    ? 'Install AirSlip on your Phone for the Full Borderless Experience' 
-                    : 'قم بتثبيت AirSlip على هاتفك لتجربة تطبيق متكاملة وكاملة الشاشة'}
-                </p>
-                <p className="text-[10px] text-slate-300 font-medium font-sans">
-                  {lang === 'en'
-                    ? 'Your current payroll configuration and workspace settings are armed and ready to sync.'
-                    : 'إعدادات الشركة الحالية مهيأة وتلقائية للمزامنة فور التنزيل.'}
-                </p>
-              </div>
             </div>
 
             <div className="flex items-center gap-2.5 flex-shrink-0 flex-wrap justify-center sm:justify-end">
