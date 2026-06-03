@@ -1293,8 +1293,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         </section>
 
         {/* Social Proof */}
-        <section className="mb-16 lg:mb-24 text-center max-w-5xl mx-auto space-y-10">
-          <div className="space-y-4">
+        <section className="mb-16 lg:mb-24 text-center space-y-10">
+          <div className="space-y-4 max-w-5xl mx-auto px-4">
             <h2 className="text-2xl md:text-3xl font-black text-[#041b3c] tracking-tight">
               Trusted by Teams Who Value Transparency
             </h2>
@@ -1304,139 +1304,149 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             </div>
           </div>
 
-          <div
-            className="flex overflow-x-auto snap-x snap-mandatory gap-6 items-stretch pt-4 pb-8 -mx-4 px-4 sm:-mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
-            style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
-          >
-            {[
-              {
-                text: "AirSlip cut our post-payday HR queries by 90%. Our employees love checking their payslips on their phones.",
-                initial: "M",
-                first: "M",
-                firstBlur: "uhummad",
-                last: "A",
-                lastBlur: "li",
-                title: "HR Manager",
-              },
-              {
-                text: "I used to spend 3 days a month emailing payslips. Now it takes me literally 2 minutes. Life changing.",
-                initial: "S",
-                first: "S",
-                firstBlur: "arah",
-                last: "J",
-                lastBlur: "ones",
-                title: "Operations Lead",
-              },
-              {
-                text: "Our staff stopped asking for historical payslips for bank loans. They just download PDFs directly from their phones.",
-                initial: "A",
-                first: "A",
-                firstBlur: "hmed",
-                last: "K",
-                lastBlur: "halid",
-                title: "Payroll Director",
-              },
-              {
-                text: "Payday used to mean a flood of WhatsApp messages. Now everyone just checks the app. Complete peace of mind.",
-                initial: "F",
-                first: "F",
-                firstBlur: "atima",
-                last: "Z",
-                lastBlur: "ahra",
-                title: "HR Executive",
-              },
-              {
-                text: "The team is so much happier. They feel valued having a premium app to see their salaries instantly.",
-                initial: "D",
-                first: "D",
-                firstBlur: "avid",
-                last: "C",
-                lastBlur: "hen",
-                title: "General Manager",
-              },
-              {
-                text: "No more printing, no more lost papers. The amount of time and paper we save every month is unbelievable.",
-                initial: "L",
-                first: "L",
-                firstBlur: "ayla",
-                last: "M",
-                lastBlur: "ahmoud",
-                title: "Admin Supervisor",
-              },
-              {
-                text: "Employees love that they can switch between English and Arabic easily. Everyone understands their deductions clearly now.",
-                initial: "O",
-                first: "O",
-                firstBlur: "mar",
-                last: "T",
-                lastBlur: "ariq",
-                title: "Financial Controller",
-              },
-              {
-                text: "The easiest rollout we've ever done. The team just scanned a code and stopped asking HR for salary details.",
-                initial: "R",
-                first: "R",
-                firstBlur: "achel",
-                last: "K",
-                lastBlur: "ennedy",
-                title: "People Ops",
-              },
-            ].map((review, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl border border-slate-200/75 p-6 text-left shadow-sm flex flex-col justify-between min-w-[300px] sm:min-w-[340px] snap-center"
-              >
-                <div className="space-y-4">
-                  <div className="flex gap-1 text-amber-400 text-lg">★★★★★</div>
-                  <p className="text-slate-600 font-medium leading-relaxed italic text-[14px]">
-                    "{review.text}"
-                  </p>
-                </div>
-                <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-sm">
-                    {review.initial}
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm flex items-center gap-1">
-                      {review.first}
-                      <span className="text-slate-300 blur-[3px] select-none">
-                        {review.firstBlur}
-                      </span>{" "}
-                      {review.last}
-                      <span className="text-slate-300 blur-[3px] select-none">
-                        {review.lastBlur}
-                      </span>
-                    </p>
-                    <p className="text-xs text-slate-500 font-medium">
-                      {review.title}
+          <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
+            <div
+              className="flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 items-stretch pt-4 pb-8 px-4 sm:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden"
+              style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
+            >
+              {[
+                {
+                  text: "AirSlip cut our post-payday HR queries by 90%. Our employees love checking their payslips on their phones.",
+                  initial: "M",
+                  first: "M",
+                  firstBlur: "uhummad",
+                  last: "A",
+                  lastBlur: "li",
+                  title: "HR Manager",
+                },
+                {
+                  text: "I used to spend 3 days a month emailing payslips. Now it takes me literally 2 minutes. Life changing.",
+                  initial: "S",
+                  first: "S",
+                  firstBlur: "arah",
+                  last: "J",
+                  lastBlur: "ones",
+                  title: "Operations Lead",
+                },
+                {
+                  text: "Our staff stopped asking for historical payslips for bank loans. They just download PDFs directly from their phones.",
+                  initial: "A",
+                  first: "A",
+                  firstBlur: "hmed",
+                  last: "K",
+                  lastBlur: "halid",
+                  title: "Payroll Director",
+                },
+                {
+                  text: "Payday used to mean a flood of WhatsApp messages. Now everyone just checks the app. Complete peace of mind.",
+                  initial: "F",
+                  first: "F",
+                  firstBlur: "atima",
+                  last: "Z",
+                  lastBlur: "ahra",
+                  title: "HR Executive",
+                },
+                {
+                  text: "The team is so much happier. They feel valued having a premium app to see their salaries instantly.",
+                  initial: "D",
+                  first: "D",
+                  firstBlur: "avid",
+                  last: "C",
+                  lastBlur: "hen",
+                  title: "General Manager",
+                },
+                {
+                  text: "No more printing, no more lost papers. The amount of time and paper we save every month is unbelievable.",
+                  initial: "L",
+                  first: "L",
+                  firstBlur: "ayla",
+                  last: "M",
+                  lastBlur: "ahmoud",
+                  title: "Admin Supervisor",
+                },
+                {
+                  text: "Employees love that they can switch between English and Arabic easily. Everyone understands their deductions clearly now.",
+                  initial: "O",
+                  first: "O",
+                  firstBlur: "mar",
+                  last: "T",
+                  lastBlur: "ariq",
+                  title: "Financial Controller",
+                },
+                {
+                  text: "The easiest rollout we've ever done. The team just scanned a code and stopped asking HR for salary details.",
+                  initial: "R",
+                  first: "R",
+                  firstBlur: "achel",
+                  last: "K",
+                  lastBlur: "ennedy",
+                  title: "People Ops",
+                },
+              ].map((review, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-2xl border border-slate-200/75 p-6 text-left shadow-sm flex flex-col justify-between w-[85vw] max-w-[320px] sm:w-[340px] sm:max-w-none shrink-0 snap-center sm:snap-start"
+                >
+                  <div className="space-y-4">
+                    <div className="flex gap-1 text-amber-400 text-lg">
+                      ★★★★★
+                    </div>
+                    <p className="text-slate-600 font-medium leading-relaxed italic text-[14px]">
+                      "{review.text}"
                     </p>
                   </div>
+                  <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-sm">
+                      {review.initial}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 text-sm flex items-center gap-1">
+                        {review.first}
+                        <span className="text-slate-300 blur-[3px] select-none">
+                          {review.firstBlur}
+                        </span>{" "}
+                        {review.last}
+                        <span className="text-slate-300 blur-[3px] select-none">
+                          {review.lastBlur}
+                        </span>
+                      </p>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {review.title}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Scroll indicators */}
+            <div className="hidden sm:block absolute top-1/2 -translate-y-1/2 left-0 w-16 h-full bg-gradient-to-r from-[#fafcff] to-transparent pointer-events-none" />
+            <div className="hidden sm:block absolute top-1/2 -translate-y-1/2 right-0 w-16 h-full bg-gradient-to-l from-[#fafcff] to-transparent pointer-events-none" />
           </div>
 
-          <div className="max-w-2xl mx-auto pt-4">
-            <div className="bg-gradient-to-br from-[#003d9b] to-[#041b3c] rounded-2xl p-8 text-left shadow-lg text-white flex flex-col sm:flex-row justify-between items-center sm:items-start relative overflow-hidden gap-8">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full filter blur-xl transform translate-x-1/3 -translate-y-1/3" />
-              <div className="space-y-3 relative z-10 flex-1 text-center sm:text-left">
-                <div className="inline-flex items-center justify-center w-10 h-10 bg-white/10 rounded-xl mb-1 text-xl border border-white/20">
+          <div className="max-w-4xl mx-auto pt-4 px-4 sm:px-0">
+            <div className="bg-gradient-to-br from-[#003d9b] to-[#041b3c] rounded-3xl p-6 sm:p-8 lg:p-10 text-left shadow-lg text-white flex flex-col md:flex-row justify-between items-center md:items-center relative overflow-hidden gap-6 md:gap-10">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full filter blur-2xl transform translate-x-1/3 -translate-y-1/3" />
+              <div className="space-y-3 relative z-10 flex-1 text-center md:text-left w-full">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-2xl mb-2 text-2xl border border-white/20 mx-auto md:mx-0">
                   🚀
                 </div>
-                <h3 className="font-black text-xl text-white">Early Access</h3>
-                <p className="text-blue-100 font-medium leading-relaxed text-[15px]">
+                <h3 className="font-black text-2xl md:text-3xl text-white">
+                  Early Access
+                </h3>
+                <p className="text-blue-100 font-medium leading-relaxed text-base">
                   Join companies already simplifying their payroll transparency
                   today. Set up your zero-code portal in minutes.
                 </p>
               </div>
-              <div className="relative z-10 w-full sm:w-auto flex-shrink-0 flex items-center sm:h-full sm:pt-4">
+              <div className="relative z-10 w-full md:w-auto flex-shrink-0 flex items-center md:h-full md:pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     const el = document.getElementById("interactive-steps");
                     el?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="bg-white text-[#003d9b] font-black w-full sm:w-auto px-8 py-3.5 rounded-xl hover:bg-slate-50 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider"
+                  className="bg-white text-[#003d9b] font-black w-full md:w-auto px-8 py-4 md:py-3.5 rounded-xl hover:bg-slate-50 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider text-center"
                 >
                   Create Custom Workspace
                 </button>
