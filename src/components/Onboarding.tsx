@@ -43,8 +43,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [gasUrl, setGasUrl] = useState(() => localStorage.getItem('salaryportal_onboard_gasUrl') || '');
 
   // UI state for activation / configuration step
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [onboardingWizardStep, setOnboardingWizardStep] = useState(1);
+  const [showFormModal, setShowFormModal] = useState(() => localStorage.getItem('salaryportal_onboard_showFormModal') === 'true');
+  const [onboardingWizardStep, setOnboardingWizardStep] = useState(() => {
+    const saved = localStorage.getItem('salaryportal_onboard_onboardingWizardStep');
+    return saved ? parseInt(saved, 10) : 1;
+  });
   
   // Validation status hooks
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -83,6 +86,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   useEffect(() => {
     localStorage.setItem('salaryportal_onboard_gasUrl', gasUrl);
   }, [gasUrl]);
+
+  useEffect(() => {
+    localStorage.setItem('salaryportal_onboard_showFormModal', showFormModal ? 'true' : 'false');
+  }, [showFormModal]);
+
+  useEffect(() => {
+    localStorage.setItem('salaryportal_onboard_onboardingWizardStep', onboardingWizardStep.toString());
+  }, [onboardingWizardStep]);
 
   // Submitting stopwatch timer
   useEffect(() => {
@@ -214,6 +225,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     localStorage.removeItem('salaryportal_onboard_email');
     localStorage.removeItem('salaryportal_onboard_companySize');
     localStorage.removeItem('salaryportal_onboard_gasUrl');
+    localStorage.removeItem('salaryportal_onboard_showFormModal');
+    localStorage.removeItem('salaryportal_onboard_onboardingWizardStep');
   };
 
   const validateFields = (): boolean => {
@@ -244,10 +257,15 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     }
 
     // GAS URL validation
-    if (!gasUrl.trim()) {
-      errors.gasUrl = 'Google Apps Script URL is required';
-    } else if (!gasUrl.trim().startsWith('https://script.google.com/macros/')) {
-      errors.gasUrl = 'Must start with: https://script.google.com/macros/';
+    const trimmedGasUrl = gasUrl.trim();
+    if (!trimmedGasUrl) {
+      errors.gasUrl = 'Google Apps Script Web App URL is required';
+    } else if (trimmedGasUrl.includes('script.google.com') && (trimmedGasUrl.includes('/edit') || trimmedGasUrl.includes('/u/'))) {
+      errors.gasUrl = 'This is your Apps Script Editor URL! Please deploy it: "Deploy" -> "New Deployment" -> select Type: "Web App", and copy the Web App URL (must end with /exec).';
+    } else if (!trimmedGasUrl.startsWith('https://script.google.com/macros/s/')) {
+      errors.gasUrl = 'Invalid Web App URL layout. Correct URLs must start with "https://script.google.com/macros/s/"';
+    } else if (!trimmedGasUrl.endsWith('/exec') && !trimmedGasUrl.includes('/exec?')) {
+      errors.gasUrl = 'Expected URL to end with "/exec". Verify that you copied the Deployed Web App URL instead of an editor or dev link.';
     }
 
     setValidationErrors(errors);
@@ -258,15 +276,22 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     setTestStatus('idle');
     setTestError('');
 
-    if (!gasUrl.trim()) {
+    const trimmedGasUrl = gasUrl.trim();
+    if (!trimmedGasUrl) {
       setTestStatus('failed');
-      setTestError('Please enter a Google Apps Script URL first.');
+      setTestError('Please enter a Google Apps Script Web App URL first.');
       return;
     }
 
-    if (!gasUrl.trim().startsWith('https://script.google.com/macros/')) {
+    if (trimmedGasUrl.includes('script.google.com') && (trimmedGasUrl.includes('/edit') || trimmedGasUrl.includes('/u/'))) {
       setTestStatus('failed');
-      setTestError('Must be a valid script.google.com Web App deployment URL.');
+      setTestError('This is an Editor URL! Click Deploy -> New Deployment -> Choose Type: Web App, set Access: "Anyone", copy Web App URL.');
+      return;
+    }
+
+    if (!trimmedGasUrl.startsWith('https://script.google.com/macros/s/')) {
+      setTestStatus('failed');
+      setTestError('Web App URLs must start with: https://script.google.com/macros/s/');
       return;
     }
 
@@ -294,6 +319,15 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     } finally {
       setTesting(false);
     }
+  };
+
+  const handleGoToLogin = () => {
+    setShowFormModal(false);
+    setLoginTab('admin');
+    setLoginGasUrl(gasUrl.trim());
+    setLoginAdminEmail(email.trim());
+    setLoginError('');
+    setShowLoginModal(true);
   };
 
   const handleBypassWithDuplicate = () => {
@@ -396,6 +430,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     localStorage.removeItem('salaryportal_onboard_email');
     localStorage.removeItem('salaryportal_onboard_companySize');
     localStorage.removeItem('salaryportal_onboard_gasUrl');
+    localStorage.removeItem('salaryportal_onboard_showFormModal');
+    localStorage.removeItem('salaryportal_onboard_onboardingWizardStep');
   };
 
   const handleNextStep = () => {
@@ -1176,21 +1212,28 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
                         {/* Handle Duplicated Workspace Registration */}
                         {duplicateWarning && (
-                          <div className="bg-amber-50 text-amber-900 border border-amber-200 p-3.5 rounded-xl space-y-2.5 text-left">
-                            <p className="font-bold text-xs text-amber-950 flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 font-bold" />
-                              <span>Workspace Already Exists</span>
+                          <div className="bg-amber-50 text-amber-900 border border-amber-200 p-4 rounded-xl space-y-3 text-left">
+                            <p className="font-bold text-xs text-amber-950 flex items-center gap-1.5">
+                              <AlertTriangle className="w-4 h-4 text-amber-600 font-bold" />
+                              <span>You Have Already Submitted This Setup!</span>
                             </p>
-                            <p className="text-slate-500 text-[10px] leading-relaxed font-semibold">
-                              This Google Sheet or email address has already been configured on the Super Admin database records. You can bypass duplicates and use this spreadsheet directly:
+                            <p className="text-slate-750 text-[11px] leading-relaxed font-semibold">
+                              This Google Sheet or email address is already registered on our Super Admin network records. If this is your company setup, please log in with your Admin account. Alternatively, you can bypass this notice to re-register.
                             </p>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                              <button
+                                type="button"
+                                onClick={handleGoToLogin}
+                                className="px-3.5 py-2 bg-[#003d9b] text-white hover:bg-blue-800 font-extrabold rounded-lg text-[10.5px] cursor-pointer flex items-center justify-center gap-1 shadow-sm uppercase tracking-wider"
+                              >
+                                <span>Go to Admin Login</span>
+                              </button>
                               <button
                                 type="button"
                                 onClick={handleBypassWithDuplicate}
-                                className="px-3 py-1.5 bg-[#003d9b] text-white hover:bg-blue-800 font-bold rounded text-[10px] cursor-pointer"
+                                className="px-3 py-2 bg-amber-650 text-white hover:bg-amber-700 font-bold rounded-lg text-[10.5px] cursor-pointer"
                               >
-                                Bypass & Activate Directly
+                                Bypass & Activate Now
                               </button>
                               <button
                                 type="button"
@@ -1198,7 +1241,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                                   setDuplicateWarning(null);
                                   setSubmitError('');
                                 }}
-                                className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 font-bold rounded text-[10px] hover:bg-slate-50 cursor-pointer"
+                                className="px-3 py-2 bg-white text-slate-700 border border-slate-200 font-bold rounded-lg text-[10.5px] hover:bg-slate-50 cursor-pointer"
                               >
                                 Edit Fields
                               </button>
@@ -1208,15 +1251,29 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
                         {/* General Submit Errors */}
                         {submitError && !duplicateWarning && (
-                          <div className="bg-red-50 text-red-900 border border-red-100 p-3.5 rounded-lg text-[10.5px] font-medium space-y-0.5 text-left">
-                            <p className="font-bold text-red-900 flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                              <span>Registration Error</span>
+                          <div className="bg-red-50 text-red-950 border border-red-200 p-4 rounded-xl text-[11px] font-medium space-y-2 text-left">
+                            <p className="font-bold text-red-950 flex items-center gap-1.5">
+                              <AlertTriangle className="w-4 h-4 text-rose-600" />
+                              <span>Onboarding Error Detected</span>
                             </p>
-                            <p className="text-slate-500 font-semibold text-[10px]">{submitError}</p>
-                            <p className="text-[10px] text-slate-404 font-normal leading-relaxed">
-                              Make sure your Google Script was successfully deployed as a Web App with access set to "Anyone" and execute as "Me".
+                            <p className="bg-white/60 p-2.5 rounded border border-red-100 text-slate-800 font-bold font-mono text-[9.5px] leading-relaxed break-words">
+                              {submitError}
                             </p>
+                            
+                            <div className="text-[10.5px] text-slate-700 space-y-1">
+                              <p className="font-extrabold text-slate-900">How to resolve common setup issues:</p>
+                              <ul className="list-disc list-inside space-y-1 pl-1 font-semibold text-slate-650">
+                                <li>
+                                  <span className="text-slate-850">Authorization:</span> Confirm the Web App deployment is executing as <span className="text-indigo-700">"Me"</span> and access is set to <span className="text-indigo-700">"Anyone"</span>.
+                                </li>
+                                <li>
+                                  <span className="text-slate-850">Invalid URL:</span> Did you paste the editor URL? Deployed Web App URL must start with <span className="font-mono text-red-650">/macros/s/...</span> and end in <span className="font-mono text-green-700">/exec</span>.
+                                </li>
+                                <li>
+                                  <span className="text-slate-850">CORS or Timeout:</span> Ensure you clicked <span className="text-amber-800">"Authorize Access"</span> when executing the initial Apps Script setup inside Google Sheets.
+                                </li>
+                              </ul>
+                            </div>
                           </div>
                         )}
                       </div>
