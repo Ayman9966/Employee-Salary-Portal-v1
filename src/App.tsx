@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { formatAmount } from './lib/format';
 import { AdminPanel } from './components/AdminPanel';
 import { Onboarding } from './components/Onboarding';
-import { Lock, AlertTriangle } from 'lucide-react';
+import { Lock, AlertTriangle, Smartphone, X, Check, HelpCircle } from 'lucide-react';
 
 export default function App() {
   const [accessCode, setAccessCode] = useState<string | null>(localStorage.getItem('access_code'));
@@ -26,6 +26,25 @@ export default function App() {
     return localStorage.getItem('is_demo_mode') === 'true' ? '1234' : '';
   });
   const [inviteCountdown, setInviteCountdown] = useState<number | null>(null);
+
+  // States for PWA install guide modal
+  const [showInstallGuideModal, setShowInstallGuideModal] = useState(false);
+  const [installTab, setInstallTab] = useState<'ios' | 'android'>('ios');
+  const [deviceOS, setDeviceOS] = useState<'ios' | 'android' | 'other'>('other');
+
+  useEffect(() => {
+    const ua = navigator.userAgent.toLowerCase();
+    if (/iphone|ipad|ipod/.test(ua)) {
+      setDeviceOS('ios');
+      setInstallTab('ios');
+    } else if (/android/.test(ua)) {
+      setDeviceOS('android');
+      setInstallTab('android');
+    } else {
+      setDeviceOS('other');
+      setInstallTab('ios');
+    }
+  }, []);
 
   useEffect(() => {
     if (isDemoMode) {
@@ -351,14 +370,26 @@ export default function App() {
               📩 Invitation Active
             </span>
             <span className="font-bold text-rose-50/0 text-emerald-50">
-              Workspace saved locally!
+              Workspace saved!
             </span>
             <span className="font-semibold text-white">
               Add to Home Screen to download the app with this preconfigured setup.
             </span>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0 text-[10px] sm:text-[11px]">
-            <span className="bg-white/15 text-white font-mono font-bold px-2 py-1 rounded flex items-center gap-1.5 border border-white/10">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-center text-[10px] sm:text-[11px]">
+            <button
+              type="button"
+              onClick={() => {
+                if (deviceOS === 'android') setInstallTab('android');
+                else setInstallTab('ios');
+                setShowInstallGuideModal(true);
+              }}
+              className="bg-white text-emerald-800 hover:bg-emerald-50 active:scale-95 text-[10px] sm:text-[10.5px] font-black uppercase px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 cursor-pointer border border-emerald-500/20"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Mobile Setup (iOS & Android)</span>
+            </button>
+            <span className="bg-white/15 text-white font-mono font-bold px-2 py-1.5 rounded flex items-center gap-1.5 border border-white/10">
               <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block animate-ping"></span>
               Cleaning URL in <strong className="text-white">{inviteCountdown}s</strong>
             </span>
@@ -611,6 +642,37 @@ export default function App() {
                       <>
                         <ProfileCard lang={lang} />
                         <SettingsCard lang={lang} />
+
+                        {/* Mobile Add to Home Screen section */}
+                        <div className="bg-white rounded-xl border border-[#D1E1F5] overflow-hidden shadow-sm p-5 space-y-3">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                              <Smartphone className="w-5 h-5 animate-pulse" />
+                            </div>
+                            <div className="space-y-0.5">
+                              <h3 className="text-sm font-black text-slate-800">
+                                {lang === 'en' ? 'Add to Home Screen' : 'إضافة إلى الشاشة الرئيسية'}
+                              </h3>
+                              <p className="text-[11px] text-slate-500 leading-normal font-medium">
+                                {lang === 'en' 
+                                  ? 'Install AirSlip on your mobile device as a fast, borderless app with offline support.' 
+                                  : 'قم بتثبيت AirSlip على هاتفك المحمول كتطبيق سريع دون هوامش مع ميزات تصفح ذكي.'}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (deviceOS === 'android') setInstallTab('android');
+                              else setInstallTab('ios');
+                              setShowInstallGuideModal(true);
+                            }}
+                            className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-[10.5px] uppercase tracking-wider transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
+                          >
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span>{lang === 'en' ? 'Launch Installation Guide' : 'فتح دليل التثبيت للهواتف'}</span>
+                          </button>
+                        </div>
                         <div className="pt-4">
                           <button 
                             onClick={handleLogout}
@@ -815,6 +877,236 @@ export default function App() {
                 className="flex-1 h-10 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 font-bold rounded-xl text-xs transition-all cursor-pointer text-center"
               >
                 Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showInstallGuideModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowInstallGuideModal(false)}
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs"
+          />
+          
+          {/* Modal Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: "spring", duration: 0.3 }}
+            className="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-100/60 text-left flex flex-col max-h-[90vh] z-10"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-55 bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 leading-none">
+                    {lang === 'en' ? 'Add to Home Screen' : 'إضافة إلى الشاشة الرئيسية'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-1">
+                    {lang === 'en' ? 'Setup AirSlip on Android & iOS devices' : 'إعداد وتثبيت التطبيق على هواتف أندرويد وآيفون'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInstallGuideModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Platform Selection Tabs */}
+            <div className="flex border-b border-slate-100/80 bg-slate-50 p-1 rounded-xl mt-4 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setInstallTab('ios')}
+                className={`flex-1 py-1.5 text-center text-xs font-black rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  installTab === 'ios'
+                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200/40'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <span>🍏</span>
+                <span>{lang === 'en' ? 'Apple iOS' : 'آيفون وآيباد'}</span>
+                {deviceOS === 'ios' && (
+                  <span className="text-[8px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-bold">
+                    {lang === 'en' ? 'Best' : 'مناسب'}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setInstallTab('android')}
+                className={`flex-1 py-1.5 text-center text-xs font-black rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  installTab === 'android'
+                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200/40'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <span>🤖</span>
+                <span>{lang === 'en' ? 'Android' : 'أندرويد'}</span>
+                {deviceOS === 'android' && (
+                  <span className="text-[8px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-bold">
+                    {lang === 'en' ? 'Best' : 'مناسب'}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Instruction Steps (Scrollable) */}
+            <div className="py-4 overflow-y-auto flex-1 space-y-4 max-h-[50vh] pr-1">
+              {installTab === 'ios' ? (
+                // iOS Instructions
+                <div className="space-y-3.5 animate-in fade-in duration-200">
+                  <div className="p-3 bg-amber-50/50 border border-amber-100 rounded-2xl flex items-start gap-2.5">
+                    <span className="text-sm mt-0.5">📢</span>
+                    <p className="text-[10.5px] text-amber-900 leading-relaxed font-semibold">
+                      {lang === 'en' 
+                        ? 'Apple iOS requires Safari to add apps to the home screen. Please open this app URL in Safari if using other web browsers.'
+                        : 'يتطلب نظام iOS فتح الرابط بواسطة متصفح Safari الأساسي لتتمكن من إضافة التطبيق إلى شاشتك الرئيسية.'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* Step 1 */}
+                    <div className="flex gap-3 items-start p-2 rounded-2xl border border-slate-100/50">
+                      <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 text-[#003d9b] font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="font-extrabold text-[#003d9b] text-xs">
+                          {lang === 'en' ? 'Tap the Share Button' : 'اضغط على زر المشاركة'}
+                        </h4>
+                        <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                          {lang === 'en' 
+                            ? 'Tap the Share icon at the bottom browser bar (square with an upwards arrow 📤).' 
+                            : 'اضغط على أيقونة المشاركة (مربع بسهم متجه لأعلى 📤) في شريط أدوات Safari السفلي.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="flex gap-3 items-start p-2 rounded-2xl border border-slate-100/50">
+                      <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 text-[#003d9b] font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="font-extrabold text-[#003d9b] text-xs">
+                          {lang === 'en' ? "Select 'Add to Home Screen'" : 'اختر "إضافة إلى الشاشة الرئيسية"'}
+                        </h4>
+                        <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                          {lang === 'en' 
+                            ? "Scroll down the sharing options and tap 'Add to Home Screen' (plus icon ➕)." 
+                            : 'قم بالتمرير للأسفل في القائمة، واضغط على خيار "إضافة إلى الشاشة الرئيسية" (بجوار علامة الزائد ➕).'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="flex gap-3 items-start p-2 rounded-2xl border border-slate-100/50">
+                      <div className="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="font-extrabold text-emerald-800 text-xs">
+                          {lang === 'en' ? 'Confirm Addition' : 'تأكيد الإضافة'}
+                        </h4>
+                        <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                          {lang === 'en' 
+                            ? "Confirm the name 'AirSlip' and tap 'Add' in the top right. Launch the shortcut to experience borderless app!" 
+                            : 'قم بتأكيد الاسم ثم اضغط على "إضافة" بالأعلى. افتح التطبيق من خلفية شاشتك للاستمتاع بواجهة كاملة.'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Android Instructions
+                <div className="space-y-3.5 animate-in fade-in duration-200">
+                  <div className="p-3 bg-amber-50/50 border border-amber-105 rounded-2xl flex items-start gap-2.5">
+                    <span className="text-sm mt-0.5">📢</span>
+                    <p className="text-[10.5px] text-amber-900 leading-relaxed font-semibold">
+                      {lang === 'en' 
+                        ? 'Works on any mobile browser (Chrome, Samsung Internet, Edge, Firefox). Google Chrome is highly recommended.'
+                        : 'متوافق مع جميع متصفحات أندرويد الذكية (Chrome, Samsung Internet). نوصي بمتصفح Chrome لسهولة التنصيب.'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* Step 1 */}
+                    <div className="flex gap-3 items-start p-2 rounded-2xl border border-slate-100/50">
+                      <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 text-[#003d9b] font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="font-extrabold text-[#003d9b] text-xs">
+                          {lang === 'en' ? 'Tap the Options Menu' : 'انقر على خيارات المتصفح'}
+                        </h4>
+                        <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                          {lang === 'en' 
+                            ? 'Tap the browser’s overflow menu icon (three vertical dots ⋮) in the top-right corner.' 
+                            : 'انقر على رمز قائمة الثلاث النقاط العمودية ⋮ في الزاوية العلوية اليمنى بجانب شريط العناوين.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="flex gap-3 items-start p-2 rounded-2xl border border-slate-100/50">
+                      <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 text-[#003d9b] font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="font-extrabold text-[#003d9b] text-xs">
+                          {lang === 'en' ? "Select 'Add to Home Screen' / 'Install app'" : 'اختر إضافة إلى الشاشة الرئيسية'}
+                        </h4>
+                        <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                          {lang === 'en' 
+                            ? "Look for 'Add to Home Screen' or 'Install App' inside the dropdown menu panel." 
+                            : 'اختر "إضافة إلى الشاشة الرئيسية" أو "تثبيت التطبيق" من اللوحة المنسدلة.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="flex gap-3 items-start p-2 rounded-2xl border border-slate-100/50">
+                      <div className="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="font-extrabold text-emerald-800 text-xs">
+                          {lang === 'en' ? 'Click Add/Install' : 'اضغط إضافة / تثبيت'}
+                        </h4>
+                        <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                          {lang === 'en' 
+                            ? "Tap 'Add' or 'Install' on the popup dialogue. The application has now been added to your phone drawer!" 
+                            : 'اضغط على زر "إضافة" أو "تثبيت". سيظهر التطبيق الآن مع تطبيقات هاتفك الأخرى!'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Close Button / Bottom Bar */}
+            <div className="border-t border-slate-100 pt-4 flex-shrink-0 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowInstallGuideModal(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black rounded-xl text-xs transition-all active:scale-[0.99] cursor-pointer text-center"
+              >
+                {lang === 'en' ? 'Got it, thank you!' : 'حسناً، فهمت!'}
               </button>
             </div>
           </motion.div>
