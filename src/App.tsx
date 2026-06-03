@@ -26,6 +26,46 @@ export default function App() {
     return localStorage.getItem('is_demo_mode') === 'true' ? '1234' : '';
   });
   const [inviteCountdown, setInviteCountdown] = useState<number | null>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    const checkStandalone = () => {
+      const isStandaloneMode = 
+        window.matchMedia('(display-mode: standalone)').matches || 
+        (navigator as any).standalone || 
+        document.referrer.includes('android-app://') ||
+        window.location.search.includes('display=standalone');
+      setIsStandalone(!!isStandaloneMode);
+    };
+    checkStandalone();
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', checkStandalone);
+    }
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', checkStandalone);
+      }
+    };
+  }, []);
+
+  const handleArmSetupUrl = () => {
+    const companyName = localStorage.getItem('company_name') || 'Workspace';
+    const gasUrl = localStorage.getItem('gas_url') || '';
+    const email = localStorage.getItem('company_email') || '';
+    const whatsapp = localStorage.getItem('company_whatsapp') || '';
+    const companySize = localStorage.getItem('company_size') || '';
+    
+    const obj = { companyName, gasUrl, email, whatsapp, companySize };
+    const b64 = btoa(encodeURIComponent(JSON.stringify(obj)));
+    
+    const newUrl = `${window.location.origin}${window.location.pathname}?invite=${b64}`;
+    window.history.replaceState({}, document.title, newUrl);
+    
+    setInviteCountdown(60);
+    // Smooth scroll to top to see the top countdown banner
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // States for PWA install guide modal
   const [showInstallGuideModal, setShowInstallGuideModal] = useState(false);
@@ -643,36 +683,90 @@ export default function App() {
                         <ProfileCard lang={lang} />
                         <SettingsCard lang={lang} />
 
-                        {/* Mobile Add to Home Screen section */}
-                        <div className="bg-white rounded-xl border border-[#D1E1F5] overflow-hidden shadow-sm p-5 space-y-3">
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                              <Smartphone className="w-5 h-5 animate-pulse" />
+                        {/* Dynamic PWA Custom Setup Card */}
+                        {isStandalone ? (
+                          <div className="bg-white rounded-xl border border-emerald-100 overflow-hidden shadow-sm p-5 space-y-4">
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                <span className="material-symbols-outlined text-[20px] font-bold">check_circle</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                <h3 className="text-sm font-black text-slate-800 flex items-center gap-1.5 animate-in slide-in-from-left duration-200">
+                                  <span>{lang === 'en' ? 'PWA Mobile App Active' : 'تطبيق الهاتف مفعّل ومثبّت'}</span>
+                                  <span className="text-[8px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                    {lang === 'en' ? 'Standalone' : 'مستقل'}
+                                  </span>
+                                </h3>
+                                <p className="text-[11px] text-slate-500 leading-normal font-medium">
+                                  {lang === 'en' 
+                                    ? 'AirSlip is running in native app mode with zero browser margins, offline caching, and responsive full-screen views.' 
+                                    : 'يعمل AirSlip الآن كـ تطبيق متكامل بمميزات التصفح الذكي، دون هوامش متصفح مع ذاكرة تخزين مؤقتة سريعة.'}
+                                </p>
+                              </div>
                             </div>
-                            <div className="space-y-0.5">
-                              <h3 className="text-sm font-black text-slate-800">
-                                {lang === 'en' ? 'Add to Home Screen' : 'إضافة إلى الشاشة الرئيسية'}
-                              </h3>
-                              <p className="text-[11px] text-slate-500 leading-normal font-medium">
-                                {lang === 'en' 
-                                  ? 'Install AirSlip on your mobile device as a fast, borderless app with offline support.' 
-                                  : 'قم بتثبيت AirSlip على هاتفك المحمول كتطبيق سريع دون هوامش مع ميزات تصفح ذكي.'}
+
+                            <div className="border-t border-slate-100 pt-3.5 space-y-2">
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                {lang === 'en' ? 'Workspace Provisioner' : 'تجهيز وإصدار بيئة العمل'}
                               </p>
+                              <p className="text-[10.5px] text-slate-500 leading-relaxed font-normal">
+                                {lang === 'en' 
+                                  ? 'Need to reinstall on another device or re-trigger setup helper?' 
+                                  : 'هل تحتاج لإعادة ترخيص وتثبيت التطبيق على جهاز آخر أو تشغيل مؤشر الإعداد التلقائي؟'}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={handleArmSetupUrl}
+                                className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-[10.5px] uppercase tracking-wider transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
+                              >
+                                <Smartphone className="w-3.5 h-3.5" />
+                                <span>{lang === 'en' ? 'Prepare Setup URL (60s Timer)' : 'تجهيز رابط التثبيت (مؤقت 60 ثانية)'}</span>
+                              </button>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (deviceOS === 'android') setInstallTab('android');
-                              else setInstallTab('ios');
-                              setShowInstallGuideModal(true);
-                            }}
-                            className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-[10.5px] uppercase tracking-wider transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
-                          >
-                            <Smartphone className="w-3.5 h-3.5" />
-                            <span>{lang === 'en' ? 'Launch Installation Guide' : 'فتح دليل التثبيت للهواتف'}</span>
-                          </button>
-                        </div>
+                        ) : (
+                          <div className="bg-white rounded-xl border border-[#D1E1F5] overflow-hidden shadow-sm p-5 space-y-4">
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                <Smartphone className="w-5 h-5 animate-pulse" />
+                              </div>
+                              <div className="space-y-0.5">
+                                <h3 className="text-sm font-black text-slate-800">
+                                  {lang === 'en' ? 'Add to Home Screen' : 'إضافة إلى الشاشة الرئيسية'}
+                                </h3>
+                                <p className="text-[11px] text-slate-500 leading-normal font-medium">
+                                  {lang === 'en' 
+                                    ? 'Install AirSlip on your mobile device as a fast, borderless app with offline support.' 
+                                    : 'قم بتثبيت AirSlip على هاتفك المحمول كتطبيق سريع دون هوامش مع ميزات تصفح ذكي.'}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (deviceOS === 'android') setInstallTab('android');
+                                  else setInstallTab('ios');
+                                  setShowInstallGuideModal(true);
+                                }}
+                                className="w-full text-center py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 hover:text-slate-900 border border-slate-200/50 font-black rounded-xl text-[10.5px] uppercase tracking-wider transition-all duration-155 cursor-pointer active:scale-[0.98] flex items-center justify-center gap-1.5"
+                              >
+                                <HelpCircle className="w-3.5 h-3.5 text-slate-550 text-slate-500" />
+                                <span>{lang === 'en' ? 'Installation Guide' : 'دليل التثبيت'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={handleArmSetupUrl}
+                                className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-[10.5px] uppercase tracking-wider transition-all duration-155 cursor-pointer shadow-xs active:scale-[0.98] flex items-center justify-center gap-1.5"
+                              >
+                                <Smartphone className="w-3.5 h-3.5 animate-pulse" />
+                                <span>{lang === 'en' ? 'Prepare Setup URL (60s)' : 'رابط التثبيت (60 ثانية)'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         <div className="pt-4">
                           <button 
                             onClick={handleLogout}
