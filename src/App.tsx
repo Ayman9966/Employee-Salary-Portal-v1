@@ -25,6 +25,7 @@ export default function App() {
   const [tempCode, setTempCode] = useState(() => {
     return localStorage.getItem('is_demo_mode') === 'true' ? '1234' : '';
   });
+  const [inviteCountdown, setInviteCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     if (isDemoMode) {
@@ -66,15 +67,32 @@ export default function App() {
           setGasUrlConfigured(true);
           setJoinedWorkspace(decoded.companyName);
 
-          // Clean up url
-          const newUrl = window.location.origin + window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
+          // Retain 'invite' query parameter for exactly 60 seconds so user has time to download/install PWA configured with preset setup
+          setInviteCountdown(60);
         }
       } catch (err) {
         console.error('Failed to parse dynamic onboarding invitation token:', err);
       }
     }
   }, []);
+
+  // Handle invite link 60 seconds countdown clean up
+  useEffect(() => {
+    if (inviteCountdown === null) return;
+    if (inviteCountdown <= 0) {
+      // Clear invite parameter after 60 seconds
+      const newUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      setInviteCountdown(null);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setInviteCountdown(prev => (prev !== null ? prev - 1 : null));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [inviteCountdown]);
   
   // Custom states for Admin login
   const [adminEmail, setAdminEmail] = useState('');
@@ -319,6 +337,28 @@ export default function App() {
       <AnimatePresence>
         {showSplash && <SplashScreen />}
       </AnimatePresence>
+
+      {inviteCountdown !== null && (
+        <div className="bg-emerald-600 text-white px-4 py-3 text-[11px] sm:text-xs flex flex-col md:flex-row items-center justify-between gap-3 shadow-md border-b border-emerald-500/25 z-[100] relative animate-in slide-in-from-top duration-300">
+          <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
+            <span className="bg-white text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex items-center gap-1">
+              📩 Invitation Active
+            </span>
+            <span className="font-bold text-rose-50/0 text-emerald-50">
+              Workspace saved locally!
+            </span>
+            <span className="font-semibold text-white">
+              Add to Home Screen to download the app with this preconfigured setup.
+            </span>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0 text-[10px] sm:text-[11px]">
+            <span className="bg-white/15 text-white font-mono font-bold px-2 py-1 rounded flex items-center gap-1.5 border border-white/10">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-450 bg-rose-400 inline-block animate-ping"></span>
+              Cleaning URL in <strong className="text-white">{inviteCountdown}s</strong>
+            </span>
+          </div>
+        </div>
+      )}
 
       {isDemoMode && (
         <div className="bg-[#003d9b] text-white px-4 py-2.5 sm:py-3 text-[11px] sm:text-xs flex flex-col md:flex-row items-center justify-between gap-3 shadow-md border-b border-indigo-500/25 z-50 relative animate-in slide-in-from-top duration-300">

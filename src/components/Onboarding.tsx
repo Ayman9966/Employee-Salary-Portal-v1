@@ -10,6 +10,7 @@ import {
   CheckCircle, 
   Sparkles, 
   ArrowRight, 
+  ArrowLeft,
   Lock, 
   Settings, 
   FileText, 
@@ -43,6 +44,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   // UI state for activation / configuration step
   const [showFormModal, setShowFormModal] = useState(false);
+  const [onboardingWizardStep, setOnboardingWizardStep] = useState(1);
   
   // Validation status hooks
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -381,9 +383,40 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     localStorage.removeItem('salaryportal_onboard_gasUrl');
   };
 
+  const handleNextStep = () => {
+    const errors: Record<string, string> = {};
+    if (onboardingWizardStep === 1) {
+      if (!companyName.trim()) {
+        errors.companyName = 'Company name is required';
+      } else if (companyName.trim().length < 2) {
+        errors.companyName = 'Company name must be at least 2 characters';
+      }
+      if (!companySize) {
+        errors.companySize = 'Please select your company size';
+      }
+      if (!email.trim()) {
+        errors.email = 'Admin email is required';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        errors.email = 'Please provide a valid diagnostic email address';
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors);
+        return;
+      }
+      setValidationErrors({});
+    }
+    setOnboardingWizardStep(prev => prev + 1);
+  };
+
+  const handlePrevStep = () => {
+    setOnboardingWizardStep(prev => Math.max(1, prev - 1));
+  };
+
   const handleOpenNewOnboarding = () => {
     // Prioritize clean state by cleaning up any pre-filled mock/demo sandbox information from the form
     handleClearFields();
+    setOnboardingWizardStep(1);
     setShowFormModal(true);
   };
 
@@ -674,7 +707,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 </p>
               </div>
               <a 
-                href="https://docs.google.com/spreadsheets/d/1y4XK83YBNgreOm1PEo8AqfL7hESw3HqCYKWJwgiNUKc/template/preview" 
+                href="https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-[#003d9b] font-bold hover:underline"
@@ -781,7 +814,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
             {/* Container for Centering */}
             <div className="flex min-h-screen items-center justify-center p-3 sm:p-4 text-center z-50 relative pointer-events-none">
-              
+
               {/* Form Card Body */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -796,306 +829,427 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     type="button"
                     disabled={submitting}
                     onClick={() => setShowFormModal(false)}
-                    className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-105 border border-[#c3c6d6]/40 flex items-center justify-center text-slate-500 cursor-pointer transition-colors disabled:opacity-40"
+                    className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 border border-[#c3c6d6]/40 flex items-center justify-center text-slate-500 cursor-pointer transition-colors disabled:opacity-40"
                   >
                     <X className="w-4 h-4" />
                   </button>
 
-                   <div className="space-y-1">
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] text-[#003d9b] bg-[#f1f3ff] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider inline-block">Enterprise Activation</span>
+                      <span className="text-[10px] text-[#003d9b] bg-[#f1f3ff] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider inline-block">
+                        Setup Assistant • Step {onboardingWizardStep} of 4
+                      </span>
                       {(companyName || email || gasUrl || whatsapp) && (
                         <button
                           type="button"
                           onClick={handleClearFields}
-                          className="text-[10px] text-red-600 font-bold hover:text-red-800 hover:underline transition-colors flex items-center gap-1 cursor-pointer"
+                          className="text-[10px] text-red-600 font-bold hover:text-red-805 hover:underline transition-colors flex items-center gap-1 cursor-pointer"
                           title="Clear all fields to start fresh"
                         >
-                          (Clear All Fields)
+                          (Clear All)
                         </button>
                       )}
                     </div>
                     <h3 className="text-base sm:text-lg font-bold text-[#041b3c] tracking-tight">Onboard Your Company Portal</h3>
                   </div>
+
+                  {/* Step Bar Progress Indicator */}
+                  <div className="mt-4 flex items-center justify-between gap-2">
+                    {[
+                      { step: 1, label: 'Workspace' },
+                      { step: 2, label: 'Template' },
+                      { step: 3, label: 'Deploy app' },
+                      { step: 4, label: 'Connect & test' }
+                    ].map((s) => {
+                      const isActive = onboardingWizardStep === s.step;
+                      const isCompleted = onboardingWizardStep > s.step;
+                      return (
+                         <div key={s.step} className="flex-1 flex flex-col gap-1.5">
+                           <div className="h-1.5 w-full rounded-full transition-all duration-300 overflow-hidden bg-slate-100">
+                             <div 
+                               className={`h-full transition-all duration-300 ${
+                                 isCompleted ? 'bg-emerald-500 w-full' : isActive ? 'bg-[#003d9b] w-full' : 'bg-transparent w-0'
+                               }`} 
+                             />
+                           </div>
+                           <span className={`text-[9px] font-bold text-center tracking-tight truncate ${
+                             isActive ? 'text-[#003d9b]' : isCompleted ? 'text-emerald-650' : 'text-slate-400'
+                           }`}>
+                             {s.label}
+                           </span>
+                         </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (onboardingWizardStep < 4) {
+                      handleNextStep();
+                    } else {
+                      handleSubmit(e);
+                    }
+                  }} 
+                  className="flex flex-col flex-1 overflow-hidden"
+                >
                   {/* Scrollable Form Body */}
                   <div className="p-5 md:p-6 space-y-4 overflow-y-auto flex-1 max-h-[50vh] sm:max-h-[60vh] select-none-scrollbar">
                     
-                    {/* Company Name */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Name</label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g. Orion Labs Ltd"
-                        value={companyName}
-                        onChange={(e) => {
-                          setCompanyName(e.target.value);
-                          if (validationErrors.companyName) {
-                            setValidationErrors(prev => ({ ...prev, companyName: '' }));
-                          }
-                        }}
-                        required
-                        disabled={submitting}
-                        className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.companyName ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
-                      />
-                      {validationErrors.companyName && (
-                        <p className="text-[10px] text-red-500 font-bold">{validationErrors.companyName}</p>
-                      )}
-                    </div>
+                    {onboardingWizardStep === 1 && (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100/60 text-left text-[11px] text-[#003d9b] font-medium leading-relaxed">
+                          ⚡ Let's configure your company details to prepare your bilingual payslip portal directory.
+                        </div>
 
-                    {/* Grid Inputs */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">WhatsApp Phone (Optional)</label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5">
-                            <MessageSquare className="w-3.5 h-3.5" />
-                          </span>
+                        {/* Company Name */}
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Name</label>
                           <input 
-                            type="tel" 
-                            placeholder="e.g. +14155552671"
-                            value={whatsapp}
+                            type="text" 
+                            placeholder="e.g. Orion Labs Ltd"
+                            value={companyName}
                             onChange={(e) => {
-                              setWhatsapp(e.target.value);
-                              if (validationErrors.whatsapp) {
-                                setValidationErrors(prev => ({ ...prev, whatsapp: '' }));
+                              setCompanyName(e.target.value);
+                              if (validationErrors.companyName) {
+                                setValidationErrors(prev => ({ ...prev, companyName: '' }));
                               }
                             }}
+                            required
                             disabled={submitting}
-                            className={`w-full h-10 pl-9 pr-3 bg-slate-50 border ${validationErrors.whatsapp ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
+                            className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.companyName ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
                           />
+                          {validationErrors.companyName && (
+                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.companyName}</p>
+                          )}
                         </div>
-                        {validationErrors.whatsapp && (
-                          <p className="text-[10px] text-red-500 font-bold">{validationErrors.whatsapp}</p>
-                        )}
-                      </div>
 
-                      <div className="space-y-1">
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Size</label>
-                        <select
-                          value={companySize}
-                          onChange={(e) => {
-                            setCompanySize(e.target.value);
-                            if (validationErrors.companySize) {
-                              setValidationErrors(prev => ({ ...prev, companySize: '' }));
-                            }
-                          }}
-                          disabled={submitting}
-                          className={`w-full h-10 px-3 bg-slate-50 border ${validationErrors.companySize ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c] cursor-pointer`}
-                        >
-                          <option value="">Select Company Size...</option>
-                          <option value="0-10 Members">0-10 Members</option>
-                          <option value="11-50 Members">11-50 Members</option>
-                          <option value="51-200 Members">51-200 Members</option>
-                          <option value="400+ Members">400+ Members</option>
-                        </select>
-                        {validationErrors.companySize && (
-                          <p className="text-[10px] text-red-500 font-bold">{validationErrors.companySize}</p>
-                        )}
-                      </div>
-                    </div>
+                        {/* Company Size */}
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Size</label>
+                          <select
+                            value={companySize}
+                            onChange={(e) => {
+                              setCompanySize(e.target.value);
+                              if (validationErrors.companySize) {
+                                setValidationErrors(prev => ({ ...prev, companySize: '' }));
+                              }
+                            }}
+                            required
+                            disabled={submitting}
+                            className={`w-full h-10 px-3 bg-slate-50 border ${validationErrors.companySize ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c] cursor-pointer`}
+                          >
+                            <option value="">Select Company Size...</option>
+                            <option value="0-10 Members">0-10 Members</option>
+                            <option value="11-50 Members">11-50 Members</option>
+                            <option value="51-200 Members">51-200 Members</option>
+                            <option value="400+ Members">400+ Members</option>
+                          </select>
+                          {validationErrors.companySize && (
+                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.companySize}</p>
+                          )}
+                        </div>
 
-                    {/* Admin Corp Email */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Admin Corp Email</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5">
-                          <Mail className="w-3.5 h-3.5" />
-                        </span>
-                        <input 
-                          type="email" 
-                          placeholder="e.g. hr@airslipportal.com"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (validationErrors.email) {
-                              setValidationErrors(prev => ({ ...prev, email: '' }));
-                            }
-                          }}
-                          required
-                          disabled={submitting}
-                          className={`w-full h-10 pl-9 pr-3.5 bg-slate-50 border ${validationErrors.email ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
-                        />
-                      </div>
-                      {validationErrors.email && (
-                        <p className="text-[10px] text-red-500 font-bold">{validationErrors.email}</p>
-                      )}
-                    </div>
-
-                    {/* Google Web App URL endpoint */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Google Web App URL</label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowFormModal(false);
-                            const stepSec2 = document.getElementById('interactive-steps');
-                            if (stepSec2) stepSec2.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                          className="text-[10px] text-[#003d9b] font-bold hover:underline"
-                        >
-                          Need the template link?
-                        </button>
-                      </div>
-                      <input 
-                        type="url" 
-                        placeholder="https://script.google.com/macros/s/.../exec"
-                        value={gasUrl}
-                        onChange={(e) => {
-                          setGasUrl(e.target.value);
-                          setTestStatus('idle');
-                          if (validationErrors.gasUrl) {
-                            setValidationErrors(prev => ({ ...prev, gasUrl: '' }));
-                          }
-                        }}
-                        required
-                        disabled={submitting}
-                        className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.gasUrl ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-mono text-[10px] focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-slate-700`}
-                      />
-                      {validationErrors.gasUrl && (
-                        <p className="text-[10px] text-red-500 font-bold">{validationErrors.gasUrl}</p>
-                      )}
-                    </div>
-
-                    {/* Connection Validator */}
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3">
-                      <div className="text-left">
-                        <h5 className="font-bold text-[11px] text-[#041b3c]">Link Validator</h5>
-                        <p className="text-[9px] text-slate-405 font-medium leading-tight">Test your Web App copy link response before saving.</p>
-                      </div>
-                      <button 
-                        type="button" 
-                        onClick={handleTestConnection}
-                        disabled={testing || submitting || !gasUrl.trim()}
-                        className="h-8 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1 transition-all shadow-3xs disabled:opacity-50"
-                      >
-                        {testing ? (
-                          <span className="flex items-center gap-1">
-                            <RefreshCw className="w-3 h-3 animate-spin text-[#003d9b]" />
-                            <span>Verifying...</span>
-                          </span>
-                        ) : (
-                          <>
-                            <Activity className="w-3.5 h-3.5 text-[#003d9b]" />
-                            <span>Test Connection</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Status Banners */}
-                    {testStatus === 'success' && (
-                      <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-150 p-3 rounded-lg text-[10.5px] font-bold">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                        <span>Success: Deployed Web App is responding correctly!</span>
-                      </div>
-                    )}
-                    {testStatus === 'failed' && (
-                      <div className="bg-red-50 text-red-800 border border-red-105 p-3 rounded-lg text-[10px] font-semibold space-y-0.5">
-                        <p className="font-bold text-red-900 flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5 text-red-650" />
-                          <span>Connection Validation Failed</span>
-                        </p>
-                        <p className="text-slate-500 font-medium leading-normal text-[10px]">{testError}</p>
+                        {/* Admin Corp Email */}
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Admin Corp Email</label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5">
+                              <Mail className="w-3.5 h-3.5" />
+                            </span>
+                            <input 
+                              type="email" 
+                              placeholder="e.g. hr@airslipportal.com"
+                              value={email}
+                              onChange={(e) => {
+                                setEmail(e.target.value);
+                                if (validationErrors.email) {
+                                  setValidationErrors(prev => ({ ...prev, email: '' }));
+                                }
+                              }}
+                              required
+                              disabled={submitting}
+                              className={`w-full h-10 pl-9 pr-3.5 bg-slate-50 border ${validationErrors.email ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
+                            />
+                          </div>
+                          {validationErrors.email && (
+                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.email}</p>
+                          )}
+                        </div>
                       </div>
                     )}
 
-                    {/* Delay Warning */}
-                    <AnimatePresence>
-                      {submitting && isTakingTooLong && (
-                        <motion.div 
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3.5 space-y-2"
-                        >
-                          <div className="flex items-start gap-2">
-                            <Clock className="w-4 h-4 text-amber-600 animate-spin flex-shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-xs font-bold text-amber-950">Warming Up Spreadsheet Connection ({elapsedSeconds}s)</p>
-                              <p className="text-[10px] text-slate-550 leading-relaxed font-semibold">
-                                Google Sheets Apps Script triggers can occasionally take up to 20 seconds to warm up database queries on first deploy. Your fields are safe.
-                              </p>
+                    {onboardingWizardStep === 2 && (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        <div className="p-3.5 bg-indigo-50/50 rounded-xl border border-indigo-100 text-left space-y-2">
+                          <h4 className="text-[11px] font-bold text-[#003d9b] uppercase tracking-wider">Step 2: Copy the Spreadsheet Ledger Template</h4>
+                          <p className="text-[11px] text-slate-600 font-semibold leading-relaxed">
+                            AirSlip coordinates with a structured Google Sheets spreadsheet to safely store and recall payslip details. Open the link below and save a template clone to your Drive folder.
+                          </p>
+                        </div>
+
+                        <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-4 text-center">
+                          <div className="flex justify-center">
+                            <Database className="w-10 h-10 text-[#003d9b] animate-bounce" />
+                          </div>
+                          <div>
+                            <p className="text-[12px] font-extrabold text-[#041b3c]">Master Spreadsheet Template</p>
+                            <p className="text-[10px] text-slate-400 font-bold">Instantly accessible, free, and bilingual</p>
+                          </div>
+                          <a 
+                            href="https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="inline-flex h-11 px-5 bg-[#003d9b] hover:bg-[#002f74] text-white rounded-xl text-xs font-bold items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                          >
+                            <span>Open Google Sheet Template</span>
+                            <ExternalLink className="w-4 h-4 text-white" />
+                          </a>
+                          <p className="text-[10px] text-slate-500 font-semibold italic">
+                            💡 Tip: Click the <strong className="text-[#003d9b]">"Use Template"</strong> button in the top right corner of the Google Sheets page to copy it to your personal Drive.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {onboardingWizardStep === 3 && (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        <div className="p-3.5 bg-indigo-50/50 rounded-xl border border-indigo-100 text-left space-y-2">
+                          <h4 className="text-[11px] font-bold text-[#003d9b] uppercase tracking-wider">Step 3: Deploy Interactive Apps Script Web App</h4>
+                          <p className="text-[11px] text-slate-600 font-semibold leading-relaxed font-sans">
+                            Each employee queries their specific data safely through your custom Google Apps Script Web App without exposing spreadsheet password links.
+                          </p>
+                        </div>
+
+                        <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-left space-y-2.5">
+                          <p className="text-[11px] font-bold text-[#041b3c] uppercase tracking-wider">Deployment Instructions:</p>
+                          <ol className="list-decimal pl-4 text-[11px] font-semibold text-slate-550 space-y-2 leading-relaxed">
+                            <li>Inside your copied Google Sheet, click <strong className="text-[#041b3c]">Extensions &gt; Apps Script</strong> at the top.</li>
+                            <li>At the upper right of the Apps Script page, click <strong className="text-[#003d9b]">Deploy &gt; New Deployment</strong>.</li>
+                            <li>Click the gear/settings icon and select <strong className="text-slate-800">Web App</strong> type.</li>
+                            <li>Set "Execute as" to <strong className="text-slate-900">"Me"</strong> and "Who has access" to <strong className="text-slate-900">"Anyone"</strong>.</li>
+                            <li>Press <strong className="text-[#003d9b]">Deploy</strong>, authorize the Google permissions modal, and <strong className="text-[#003d9b]">Copy the Web App URL</strong>!</li>
+                          </ol>
+                        </div>
+                      </div>
+                    )}
+
+                    {onboardingWizardStep === 4 && (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        <div className="p-3 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-100/60 text-left text-[11px] font-medium leading-relaxed">
+                          🏁 Almost there! Paste your Web App URL to configure direct server-to-server connection.
+                        </div>
+
+                        {/* Google Web App URL endpoint */}
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Google Web App URL</label>
+                          <input 
+                            type="url" 
+                            placeholder="https://script.google.com/macros/s/.../exec"
+                            value={gasUrl}
+                            onChange={(e) => {
+                              setGasUrl(e.target.value);
+                              setTestStatus('idle');
+                              if (validationErrors.gasUrl) {
+                                setValidationErrors(prev => ({ ...prev, gasUrl: '' }));
+                              }
+                            }}
+                            required
+                            disabled={submitting}
+                            className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.gasUrl ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-mono text-[10px] focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-slate-700`}
+                          />
+                          {validationErrors.gasUrl && (
+                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.gasUrl}</p>
+                          )}
+                        </div>
+
+                        {/* WhatsApp Phone (Optional) */}
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">WhatsApp Phone (Optional)</label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5">
+                              <MessageSquare className="w-3.5 h-3.5" />
+                            </span>
+                            <input 
+                              type="tel" 
+                              placeholder="e.g. +14155552671"
+                              value={whatsapp}
+                              onChange={(e) => {
+                                setWhatsapp(e.target.value);
+                                if (validationErrors.whatsapp) {
+                                  setValidationErrors(prev => ({ ...prev, whatsapp: '' }));
+                                }
+                              }}
+                              disabled={submitting}
+                              className={`w-full h-10 pl-9 pr-3 bg-slate-50 border ${validationErrors.whatsapp ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Connection Validator */}
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3">
+                          <div className="text-left py-0.5">
+                            <h5 className="font-bold text-[11px] text-[#041b3c] flex items-center gap-1">🔬 Link Validator</h5>
+                            <p className="text-[9px] text-[#565f6a] font-semibold leading-tight">Test your Web App copy link response before saving.</p>
+                          </div>
+                          <button 
+                            type="button" 
+                            onClick={handleTestConnection}
+                            disabled={testing || submitting || !gasUrl.trim()}
+                            className="h-8 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1 transition-all shadow-3xs disabled:opacity-50"
+                          >
+                            {testing ? (
+                              <span className="flex items-center gap-1">
+                                <RefreshCw className="w-3 h-3 animate-spin text-[#003d9b]" />
+                                <span>Verifying...</span>
+                              </span>
+                            ) : (
+                              <>
+                                <Activity className="w-3.5 h-3.5 text-[#003d9b]" />
+                                <span>Test Connection</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Status Banners */}
+                        {testStatus === 'success' && (
+                          <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-150 p-3 rounded-lg text-[10.5px] font-bold">
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                            <span>Success: Deployed Web App is responding correctly!</span>
+                          </div>
+                        )}
+                        {testStatus === 'failed' && (
+                          <div className="bg-red-50 text-red-800 border border-red-105 p-3 rounded-lg text-[10px] font-semibold space-y-0.5">
+                            <p className="font-bold text-red-900 flex items-center gap-1">
+                              <AlertTriangle className="w-3.5 h-3.5 text-red-650 animate-pulse" />
+                              <span>Connection Validation Failed</span>
+                            </p>
+                            <p className="text-slate-550 font-semibold leading-normal text-[10px]">{testError}</p>
+                          </div>
+                        )}
+
+                        {/* Delay Warning */}
+                        <AnimatePresence>
+                          {submitting && isTakingTooLong && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3.5 space-y-2"
+                            >
+                              <div className="flex items-start gap-2">
+                                <Clock className="w-4 h-4 text-amber-600 animate-spin flex-shrink-0 mt-0.5" />
+                                <div>
+                                  <p className="text-xs font-bold text-amber-950 font-sans">Warming Up Spreadsheet Connection ({elapsedSeconds}s)</p>
+                                  <p className="text-[10px] text-slate-550 leading-relaxed font-semibold">
+                                    Google Sheets Apps Script triggers can occasionally take up to 20 seconds to warm up database queries on first deploy. Your fields are safe.
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={handleForceRefreshAndKeepData}
+                                className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[10px] font-bold"
+                              >
+                                Reload Safe & Retry
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Handle Duplicated Workspace Registration */}
+                        {duplicateWarning && (
+                          <div className="bg-amber-50 text-amber-900 border border-amber-200 p-3.5 rounded-xl space-y-2.5 text-left">
+                            <p className="font-bold text-xs text-amber-950 flex items-center gap-1">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 font-bold" />
+                              <span>Workspace Already Exists</span>
+                            </p>
+                            <p className="text-slate-500 text-[10px] leading-relaxed font-semibold">
+                              This Google Sheet or email address has already been configured on the Super Admin database records. You can bypass duplicates and use this spreadsheet directly:
+                            </p>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={handleBypassWithDuplicate}
+                                className="px-3 py-1.5 bg-[#003d9b] text-white hover:bg-blue-800 font-bold rounded text-[10px] cursor-pointer"
+                              >
+                                Bypass & Activate Directly
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDuplicateWarning(null);
+                                  setSubmitError('');
+                                }}
+                                className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 font-bold rounded text-[10px] hover:bg-slate-50 cursor-pointer"
+                              >
+                                Edit Fields
+                              </button>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={handleForceRefreshAndKeepData}
-                            className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[10px] font-bold"
-                          >
-                            Reload Safe & Retry
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                        )}
 
-                    {/* Handle Duplicated Workspace Registration */}
-                    {duplicateWarning && (
-                      <div className="bg-amber-50 text-amber-900 border border-amber-200 p-3.5 rounded-xl space-y-2.5">
-                        <p className="font-bold text-xs text-amber-950 flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 font-bold" />
-                          <span>Workspace Already Exists</span>
-                        </p>
-                        <p className="text-slate-500 text-[10px] leading-relaxed font-semibold">
-                          This Google Sheet or email address has already been configured on the Super Admin database records. You can bypass duplicates and use this spreadsheet directly:
-                        </p>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={handleBypassWithDuplicate}
-                            className="px-3 py-1.5 bg-[#003d9b] text-white hover:bg-blue-800 font-bold rounded text-[10px] cursor-pointer"
-                          >
-                            Bypass & Activate Directly
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDuplicateWarning(null);
-                              setSubmitError('');
-                            }}
-                            className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 font-bold rounded text-[10px] hover:bg-slate-50 cursor-pointer"
-                          >
-                            Edit Fields
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* General Submit Errors */}
-                    {submitError && !duplicateWarning && (
-                      <div className="bg-red-50 text-red-900 border border-red-100 p-3.5 rounded-lg text-[10.5px] font-medium space-y-0.5">
-                        <p className="font-bold text-red-950 flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5 text-red-650" />
-                          <span>Registration Error</span>
-                        </p>
-                        <p className="text-slate-500 font-semibold text-[10px]">{submitError}</p>
-                        <p className="text-[10px] text-slate-400 font-normal leading-relaxed">
-                          Make sure your Google Script was successfully deployed as a Web App with access set to "Anyone" and execute as "Me".
-                        </p>
+                        {/* General Submit Errors */}
+                        {submitError && !duplicateWarning && (
+                          <div className="bg-red-50 text-red-900 border border-red-100 p-3.5 rounded-lg text-[10.5px] font-medium space-y-0.5 text-left">
+                            <p className="font-bold text-red-955 flex items-center gap-1">
+                              <AlertTriangle className="w-3.5 h-3.5 text-red-650" />
+                              <span>Registration Error</span>
+                            </p>
+                            <p className="text-slate-500 font-semibold text-[10px]">{submitError}</p>
+                            <p className="text-[10px] text-slate-404 font-normal leading-relaxed">
+                              Make sure your Google Script was successfully deployed as a Web App with access set to "Anyone" and execute as "Me".
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
 
                   </div>
 
                   {/* Fixed Footer */}
-                  <div className="p-4 md:p-5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0">
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full h-11 bg-[#003d9b] text-white font-bold rounded-lg hover:bg-[#002f74] active:scale-[0.98] transition-all flex items-center justify-center shadow-lg shadow-blue-200/40 cursor-pointer text-xs uppercase tracking-wider disabled:opacity-75"
-                    >
-                      {submitting ? (
-                        <div className="flex items-center gap-1.5 font-bold">
-                          <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                          <span>Synchronizing Cloud ({elapsedSeconds}s)...</span>
-                        </div>
-                      ) : (
-                        "ACTIVATE PORTAL NOW"
-                      )}
-                    </button>
+                  <div className="p-4 md:p-5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0 flex items-center justify-between gap-3">
+                    {onboardingWizardStep > 1 ? (
+                      <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={handlePrevStep}
+                        className="h-10 px-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer active:scale-95 disabled:opacity-50"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Back</span>
+                      </button>
+                    ) : (
+                      <div />
+                    )}
+
+                    {onboardingWizardStep < 4 ? (
+                      <button
+                        type="button"
+                        onClick={handleNextStep}
+                        className="h-10 px-5 bg-[#003d9b] text-white font-bold rounded-lg hover:bg-[#002f74] transition-all flex items-center justify-center gap-1 text-xs uppercase tracking-wider cursor-pointer active:scale-[0.98]"
+                      >
+                        <span>Next Step</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="h-10 px-5 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 active:scale-[0.98] transition-all flex items-center justify-center shadow-lg shadow-emerald-205/30 cursor-pointer text-xs uppercase tracking-wider disabled:opacity-75"
+                      >
+                        {submitting ? (
+                          <div className="flex items-center gap-1.5 font-bold">
+                            <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                            <span>Synchronizing ({elapsedSeconds}s)...</span>
+                          </div>
+                        ) : (
+                          "ACTIVATE PORTAL NOW"
+                        )}
+                      </button>
+                    )}
                   </div>
                 </form>
               </motion.div>
