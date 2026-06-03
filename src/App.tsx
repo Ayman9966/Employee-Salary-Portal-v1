@@ -403,37 +403,56 @@ export default function App() {
         {showSplash && <SplashScreen />}
       </AnimatePresence>
 
-      {inviteCountdown !== null && (
-        <div className="bg-emerald-600 text-white px-4 py-3 text-[11px] sm:text-xs flex flex-col md:flex-row items-center justify-between gap-3 shadow-md border-b border-emerald-500/25 z-[100] relative animate-in slide-in-from-top duration-300">
-          <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
-            <span className="bg-white text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex items-center gap-1">
-              📩 Invitation Active
-            </span>
-            <span className="font-bold text-rose-50/0 text-emerald-50">
-              Workspace saved!
-            </span>
-            <span className="font-semibold text-white">
-              Add to Home Screen to download the app with this preconfigured setup.
-            </span>
+      {inviteCountdown !== null && !isStandalone && (
+        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-[#0b251e] to-slate-900 text-white border-b border-emerald-500/10 z-[100] animate-in slide-in-from-top duration-300">
+          {/* Main Content Area */}
+          <div className="px-4 py-3.5 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-3 max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 text-center lg:text-left flex-col sm:flex-row">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {lang === 'en' ? 'App Setup Active' : 'إعداد التطبيق نشط'}
+              </span>
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-white tracking-wide">
+                  {lang === 'en' 
+                    ? 'Install AirSlip on your Phone for the Full Borderless Experience' 
+                    : 'قم بتثبيت AirSlip على هاتفك لتجربة تطبيق متكاملة وكاملة الشاشة'}
+                </p>
+                <p className="text-[10px] text-slate-300 font-medium font-sans">
+                  {lang === 'en'
+                    ? 'Your current payroll configuration and workspace settings are armed and ready to sync.'
+                    : 'إعدادات الشركة الحالية مهيأة وتلقائية للمزامنة فور التنزيل.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 flex-shrink-0 flex-wrap justify-center sm:justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  if (deviceOS === 'android') setInstallTab('android');
+                  else setInstallTab('ios');
+                  setShowInstallGuideModal(true);
+                }}
+                className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-[10px] sm:text-[10.5px] font-black uppercase px-4 py-2 rounded-xl transition-all duration-155 shadow-md shadow-emerald-950/40 flex items-center gap-2 cursor-pointer border border-emerald-400/20 text-white"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>{lang === 'en' ? 'Mobile Setup (iOS & Android)' : 'دليل تثبيت الهاتف'}</span>
+              </button>
+
+              <div className="bg-slate-800/80 border border-slate-700/50 text-slate-200 font-mono font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 text-[10px] sm:text-xs shadow-inner">
+                <span className="text-[10px] text-emerald-400 font-sans font-semibold uppercase tracking-wider">
+                  {lang === 'en' ? 'Time Left:' : 'الوقت المتبقي:'}
+                </span>
+                <span className="text-white bg-slate-900/95 px-2 py-0.5 rounded-lg border border-slate-700/60 font-black tracking-wide">
+                  {inviteCountdown}s
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-center text-[10px] sm:text-[11px]">
-            <button
-              type="button"
-              onClick={() => {
-                if (deviceOS === 'android') setInstallTab('android');
-                else setInstallTab('ios');
-                setShowInstallGuideModal(true);
-              }}
-              className="bg-white text-emerald-800 hover:bg-emerald-50 active:scale-95 text-[10px] sm:text-[10.5px] font-black uppercase px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 cursor-pointer border border-emerald-500/20"
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>Mobile Setup (iOS & Android)</span>
-            </button>
-            <span className="bg-white/15 text-white font-mono font-bold px-2 py-1.5 rounded flex items-center gap-1.5 border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block animate-ping"></span>
-              Cleaning URL in <strong className="text-white">{inviteCountdown}s</strong>
-            </span>
-          </div>
+
+          {/* Liquid Countdown Progress Bar */}
+          <div className="h-0.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 transition-all duration-1000 ease-linear" style={{ width: `${(inviteCountdown / 60) * 100}%` }} />
         </div>
       )}
 
@@ -683,48 +702,8 @@ export default function App() {
                         <ProfileCard lang={lang} />
                         <SettingsCard lang={lang} />
 
-                        {/* Dynamic PWA Custom Setup Card */}
-                        {isStandalone ? (
-                          <div className="bg-white rounded-xl border border-emerald-100 overflow-hidden shadow-sm p-5 space-y-4">
-                            <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                                <span className="material-symbols-outlined text-[20px] font-bold">check_circle</span>
-                              </div>
-                              <div className="space-y-0.5">
-                                <h3 className="text-sm font-black text-slate-800 flex items-center gap-1.5 animate-in slide-in-from-left duration-200">
-                                  <span>{lang === 'en' ? 'PWA Mobile App Active' : 'تطبيق الهاتف مفعّل ومثبّت'}</span>
-                                  <span className="text-[8px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                                    {lang === 'en' ? 'Standalone' : 'مستقل'}
-                                  </span>
-                                </h3>
-                                <p className="text-[11px] text-slate-500 leading-normal font-medium">
-                                  {lang === 'en' 
-                                    ? 'AirSlip is running in native app mode with zero browser margins, offline caching, and responsive full-screen views.' 
-                                    : 'يعمل AirSlip الآن كـ تطبيق متكامل بمميزات التصفح الذكي، دون هوامش متصفح مع ذاكرة تخزين مؤقتة سريعة.'}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="border-t border-slate-100 pt-3.5 space-y-2">
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                {lang === 'en' ? 'Workspace Provisioner' : 'تجهيز وإصدار بيئة العمل'}
-                              </p>
-                              <p className="text-[10.5px] text-slate-500 leading-relaxed font-normal">
-                                {lang === 'en' 
-                                  ? 'Need to reinstall on another device or re-trigger setup helper?' 
-                                  : 'هل تحتاج لإعادة ترخيص وتثبيت التطبيق على جهاز آخر أو تشغيل مؤشر الإعداد التلقائي؟'}
-                              </p>
-                              <button
-                                type="button"
-                                onClick={handleArmSetupUrl}
-                                className="w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-[10.5px] uppercase tracking-wider transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
-                              >
-                                <Smartphone className="w-3.5 h-3.5" />
-                                <span>{lang === 'en' ? 'Prepare Setup URL (60s Timer)' : 'تجهيز رابط التثبيت (مؤقت 60 ثانية)'}</span>
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
+                        {/* Dynamic PWA Custom Setup Card - Shown only in standard web browser */}
+                        {!isStandalone && (
                           <div className="bg-white rounded-xl border border-[#D1E1F5] overflow-hidden shadow-sm p-5 space-y-4">
                             <div className="flex items-start gap-3">
                               <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
