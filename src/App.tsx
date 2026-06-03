@@ -161,6 +161,12 @@ export default function App() {
   });
   const [summary, setSummary] = useState<DashboardSummary>(getFromCache<DashboardSummary>(`dashboard_${new Date().getFullYear()}`) || { annualNet: 0, availableYears: [] });
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [lang, setLang] = useState<'en' | 'ar'>(() => (localStorage.getItem('app_lang') as 'en' | 'ar') || 'en');
+
+  const handleChangeLang = (newLang: 'en' | 'ar') => {
+    setLang(newLang);
+    localStorage.setItem('app_lang', newLang);
+  };
 
   // Handle URL "ref" parameter for automatic login
   useEffect(() => {
@@ -353,7 +359,7 @@ export default function App() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 text-[10px] sm:text-[11px]">
             <span className="bg-white/15 text-white font-mono font-bold px-2 py-1 rounded flex items-center gap-1.5 border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-450 bg-rose-400 inline-block animate-ping"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block animate-ping"></span>
               Cleaning URL in <strong className="text-white">{inviteCountdown}s</strong>
             </span>
           </div>
@@ -375,15 +381,9 @@ export default function App() {
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] sm:text-[11px]">
-            <span className="text-slate-200">
-              🎫 Employee Test Code: <strong className="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">1234</strong>
-            </span>
-            <span className="text-slate-200">
-              🔑 Admin Test: <span className="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">admin@enterprise.com</span> / <span className="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">admin123</span>
-            </span>
             <button
               onClick={handlePerformFullReset}
-              className="ml-2 bg-red-650 hover:bg-red-700 bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-3 py-1 rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-95 duration-150 cursor-pointer shadow-sm shadow-red-950/20"
+              className="ml-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-3 py-1 bg-rose-600 hover:bg-rose-700 rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-95 duration-150 cursor-pointer shadow-sm shadow-red-950/20"
             >
               Leave Demo
             </button>
@@ -398,7 +398,67 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-blue-50"
           >
-            {isAdminRoute ? (
+            {isDemoMode ? (
+              <div className="space-y-6">
+                <div className="text-center mb-5">
+                  <div className="w-14 h-14 bg-blue-50 text-[#003d9b] rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-100">
+                    <span className="material-symbols-outlined text-[28px] font-bold">explore</span>
+                  </div>
+                  <h1 className="text-xl font-black text-slate-800 tracking-tight">Demo Sandbox Entrance</h1>
+                  <p className="text-slate-500 text-xs mt-1 leading-normal">
+                    Explore AirSlip instantly without entering credentials. Choose either sandbox viewpoint below:
+                  </p>
+                </div>
+
+                <div className="space-y-3.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempCode('1234');
+                      localStorage.setItem('access_code', '1234');
+                      setAccessCode('1234');
+                    }}
+                    className="w-full p-4 border border-blue-100 hover:border-blue-400 bg-blue-50/20 hover:bg-blue-50/50 rounded-2xl transition-all cursor-pointer text-left flex items-start gap-4 active:scale-[0.98] group shadow-xs"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#003d9b] flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:bg-[#003d9b] group-hover:text-white transition-colors">
+                      <span className="material-symbols-outlined text-[20px]">badge</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors flex items-center justify-between">
+                        <span>Test Employee View</span>
+                        <span className="material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                      </h3>
+                      <p className="text-slate-400 text-[10px] sm:text-[11px] mt-0.5 leading-normal">
+                        Browse payslip histories, check active statements, export interactive items as PDF, and toggle language preferences.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.setItem('access_code', 'admin');
+                      setAccessCode('admin');
+                      setCurrentView('admin');
+                    }}
+                    className="w-full p-4 border border-slate-100 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-2xl transition-all cursor-pointer text-left flex items-start gap-4 active:scale-[0.98] group shadow-xs"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:bg-slate-800 group-hover:text-white transition-colors">
+                      <span className="material-symbols-outlined text-[20px]">shield</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors flex items-center justify-between">
+                        <span>Test Admin View</span>
+                        <span className="material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                      </h3>
+                      <p className="text-slate-400 text-[10px] sm:text-[11px] mt-0.5 leading-normal">
+                        Load XLS records natively, perform math verification audits on active records, and update details directly.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            ) : isAdminRoute ? (
               <div>
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100 text-blue-700">
@@ -418,7 +478,7 @@ export default function App() {
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Email Address</label>
                     <input 
-                      type="email"
+                      type="text"
                       placeholder="e.g. admin@enterprise.com"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
@@ -457,28 +517,6 @@ export default function App() {
                     ← Employee Portal
                   </button>
                 </form>
-
-                {/* Quick login button for admin if in demo mode */}
-                {isDemoMode && (
-                  <div className="mt-6 pt-5 border-t border-slate-100 space-y-2">
-                    <p className="text-[9px] text-[#003d9b] font-bold uppercase tracking-wider text-center">Quick Test Access Console</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAdminEmail('admin@enterprise.com');
-                        setAdminPassword('admin123');
-                        // Instantly auto-log in for ultimate convenience
-                        localStorage.setItem('access_code', 'admin');
-                        setAccessCode('admin');
-                        setCurrentView('admin');
-                      }}
-                      className="w-full p-2.5 border border-amber-150 bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 rounded-xl text-[10px] font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer active:scale-[0.99] group"
-                    >
-                      <span className="text-slate-500 font-normal">Autofill & Login as Sandbox Admin</span>
-                      <span className="text-[#003d9b] uppercase group-hover:underline mt-0.5">Click here to log in instantly</span>
-                    </button>
-                  </div>
-                )}
               </div>
             ) : (
               <div>
@@ -527,140 +565,172 @@ export default function App() {
                     UNLOCK DATA
                   </button>
                 </form>
-
-                {/* Quick login buttons for employee / admin if in demo mode */}
-                {isDemoMode && (
-                  <div className="mt-6 pt-5 border-t border-slate-100 space-y-2.5">
-                    <p className="text-[9px] text-[#003d9b] font-bold uppercase tracking-wider text-center">Quick Test Access Console</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTempCode('1234');
-                          localStorage.setItem('access_code', '1234');
-                          setAccessCode('1234');
-                        }}
-                        className="py-2.5 px-2 border border-blue-150 bg-blue-50 hover:bg-blue-100/70 text-[#003d9b] rounded-xl text-[10px] font-bold transition-all text-center flex flex-col justify-center items-center cursor-pointer active:scale-[0.98]"
-                      >
-                        <span className="text-slate-500 font-normal">Log in as Employee</span>
-                        <span className="tracking-wide">Use Code "1234"</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsAdminRoute(true);
-                          window.location.hash = '#admin';
-                        }}
-                        className="py-2.5 px-2 border border-blue-150 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-[10px] font-bold transition-all text-center flex flex-col justify-center items-center cursor-pointer active:scale-[0.98]"
-                      >
-                        <span className="text-slate-500 font-normal">Log in as Admin</span>
-                        <span>Credentials Console</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </motion.div>
         </div>
       ) : (
-        <div className="bg-[#f9f9ff] min-h-screen pb-24 text-[#041b3c]">
-      <Header isSyncing={isSyncing} currentView={currentView} />
-      <main className={`${currentView === 'admin' ? 'max-w-7xl px-4 md:px-6' : 'max-w-md px-3'} mx-auto py-4`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentView}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-4"
-          >
-            {currentView === 'profile' ? (
-              <>
-                <ProfileCard />
-                <SettingsCard />
-                <div className="pt-4">
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full h-12 flex items-center justify-center gap-2 border border-error text-error font-bold rounded-xl hover:bg-error-container/20 transition-all duration-200 ease-in-out active:scale-[0.98]">
-                    <span className="material-symbols-outlined">logout</span>
-                    LOGOUT
-                  </button>
-                  <p className="text-center text-caption text-slate-400 mt-6">Version 2.4.1 (Build 882)</p>
-                </div>
-              </>
-            ) : currentView === 'history' ? (
-              <div className="space-y-6">
-                <section>
-                  <div className="flex justify-between items-end mb-4">
-                    <div>
-                      <span className="text-caption font-bold text-secondary uppercase tracking-wider block mb-1">Statement Year</span>
-                      <div className="relative flex items-center">
-                        <select 
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(Number(e.target.value))}
-                            className="appearance-none bg-white border border-outline-variant rounded-xl pl-4 pr-10 py-2 font-headline-md text-display text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 ease-in-out cursor-pointer min-w-[120px] shadow-sm">
-                          {summary.availableYears.map(year => (
-                              <option key={year} value={year}>{year}</option>
-                          ))}
-                        </select>
-                        <span className="material-symbols-outlined absolute right-3 pointer-events-none text-secondary">expand_more</span>
+        <div 
+          className={`bg-[#f9f9ff] min-h-screen pb-24 text-[#041b3c] ${lang === 'ar' ? 'text-right justify-start' : 'text-left'}`} 
+          dir={lang === 'ar' ? 'rtl' : 'ltr'}
+        >
+          <Header isSyncing={isSyncing} currentView={currentView} lang={lang} onChangeLang={handleChangeLang} />
+          <main className={`${currentView === 'admin' ? 'max-w-7xl px-4 md:px-6' : 'max-w-md px-3'} mx-auto py-4`}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentView}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-4"
+              >
+                {(() => {
+                  const appTranslations = {
+                    en: {
+                      statementYear: "Statement Year",
+                      annualNet: "Annual Net",
+                      fiscal: "Fiscal",
+                      logout: "LOGOUT",
+                      version: "Version 2.4.1 (Build 882)",
+                      retry: "RETRY"
+                    },
+                    ar: {
+                      statementYear: "سنة كشف الراتب",
+                      annualNet: "صافي الدخل السنوي",
+                      fiscal: "السنة المالية",
+                      logout: "تسجيل الخروج",
+                      version: "الإصدار 2.4.1 (البناء 882)",
+                      retry: "إعادة المحاولة"
+                    }
+                  };
+                  const t = appTranslations[lang];
+
+                  if (currentView === 'profile') {
+                    return (
+                      <>
+                        <ProfileCard lang={lang} />
+                        <SettingsCard lang={lang} />
+                        <div className="pt-4">
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full h-12 flex items-center justify-center gap-2 border border-error text-error font-bold rounded-xl hover:bg-error-container/20 transition-all duration-200 ease-in-out active:scale-[0.98] cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined">logout</span>
+                            {t.logout}
+                          </button>
+                          <p className="text-center text-caption text-slate-400 mt-6">{t.version}</p>
+                        </div>
+                      </>
+                    );
+                  }
+
+                  if (currentView === 'history') {
+                    return (
+                      <div className="space-y-6">
+                        <section>
+                          <div className="flex justify-between items-end mb-4 gap-4">
+                            <div>
+                              <span className="text-caption font-bold text-secondary uppercase tracking-wider block mb-1">{t.statementYear}</span>
+                              {summary.availableYears.length > 1 ? (
+                                <div className="flex flex-col gap-2">
+                                  <div className="relative flex items-center">
+                                    <select 
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                        className="appearance-none bg-white border border-outline-variant rounded-xl pl-4 pr-10 py-2 font-headline-md text-display text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 ease-in-out cursor-pointer min-w-[120px] shadow-sm"
+                                    >
+                                      {summary.availableYears.map(year => (
+                                          <option key={year} value={year}>{year}</option>
+                                      ))}
+                                    </select>
+                                    <span className="material-symbols-outlined absolute right-3 pointer-events-none text-secondary">expand_more</span>
+                                  </div>
+                                  
+                                  {/* Horizontal Year Filter Chips for Task 24 */}
+                                  <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
+                                    {summary.availableYears.map(year => (
+                                      <button
+                                        type="button"
+                                        key={year}
+                                        onClick={() => setSelectedYear(year)}
+                                        className={`px-2.5 py-1 text-[9px] font-black tracking-wider rounded-lg transition-all border shrink-0 cursor-pointer ${selectedYear === year ? 'bg-primary text-white border-primary shadow-xs' : 'bg-white border-slate-200 text-secondary hover:bg-slate-50'}`}
+                                      >
+                                        {year}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-primary font-bold px-3 py-1.5 rounded-xl text-caption shadow-xs">
+                                  <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                                  <span>{selectedYear}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className={lang === 'ar' ? 'text-left' : 'text-right'}>
+                              <span className="text-caption font-bold text-secondary uppercase tracking-wider block mb-0.5">{t.annualNet}</span>
+                              <p className="font-headline-md text-display font-semibold text-primary">{formatAmount(summary.annualNet, { maximumFractionDigits: 0 })}</p>
+                            </div>
+                          </div>
+                        </section>
+                        
+                        {error && (
+                          <div className="bg-error-container/10 border border-error/20 p-4 rounded-xl text-center">
+                            <span className="material-symbols-outlined text-error text-[32px] mb-2">signal_disconnected</span>
+                            <p className="text-error text-body font-medium">{error}</p>
+                            <button 
+                              onClick={() => window.location.reload()}
+                              className="mt-3 text-caption bg-primary text-white px-4 py-1.5 rounded-full font-bold hover:bg-primary/90 transition-colors"
+                            >
+                              {t.retry}
+                            </button>
+                          </div>
+                        )}
+                        
+                        {isLoading ? (
+                          <div className="space-y-4">
+                            {[1, 2, 3, 4, 5].map(i => <HistoryItemSkeleton key={i} />)}
+                          </div>
+                        ) : (
+                          <HistoryList slips={historySlips} selectedSlip={selectedSlip} onSelect={handleViewSlip} onRefresh={() => window.location.reload()} lang={lang} />
+                        )}
                       </div>
-                    </div>
-                    <div className="text-right pb-1">
-                      <span className="text-caption font-bold text-secondary uppercase tracking-wider">Annual Net</span>
-                      <p className="font-headline-md text-display font-semibold text-primary">{formatAmount(summary.annualNet, { maximumFractionDigits: 0 })}</p>
-                    </div>
-                  </div>
-                </section>
-                
-                {error && (
-                  <div className="bg-error-container/10 border border-error/20 p-4 rounded-xl text-center">
-                    <span className="material-symbols-outlined text-error text-[32px] mb-2">signal_disconnected</span>
-                    <p className="text-error text-body font-medium">{error}</p>
-                    <button 
-                      onClick={() => window.location.reload()}
-                      className="mt-3 text-caption bg-primary text-white px-4 py-1.5 rounded-full font-bold hover:bg-primary/90 transition-colors"
-                    >
-                      RETRY
-                    </button>
-                  </div>
-                )}
-                
-                {isLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3, 4, 5].map(i => <HistoryItemSkeleton key={i} />)}
-                  </div>
-                ) : (
-                  <HistoryList slips={historySlips} onSelect={handleViewSlip} />
-                )}
-              </div>
-            ) : currentView === 'documents' ? (
-              <DocumentView 
-                selectedSlip={selectedSlip} 
-                historySlips={historySlips}
-                onSelectSlip={setSelectedSlip}
-              />
-            ) : (
-              <AdminPanel 
-                onSyncTrigger={() => {
-                  // Instantly update local slip lists and dashboard aggregators when changed
-                  fetchSalarySlips().then(freshSlips => {
-                    setHistorySlips(freshSlips);
-                  });
-                  fetchDashboardSummary(selectedYear).then(freshSumm => {
-                    setSummary(freshSumm);
-                  });
-                }} 
-                onLogout={handleLogout}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-      <NavBar currentView={currentView} setCurrentView={setCurrentView} isAdmin={accessCode?.toLowerCase() === 'admin'} />
-    </div>
+                    );
+                  }
+
+                  if (currentView === 'documents') {
+                    return (
+                       <DocumentView 
+                         selectedSlip={selectedSlip} 
+                         historySlips={historySlips}
+                         onSelectSlip={setSelectedSlip}
+                         lang={lang}
+                         isAdmin={accessCode?.toLowerCase() === 'admin'}
+                       />
+                    );
+                  }
+
+                  return (
+                    <AdminPanel 
+                      onSyncTrigger={() => {
+                        // Instantly update local slip lists and dashboard aggregators when changed
+                        fetchSalarySlips().then(freshSlips => {
+                          setHistorySlips(freshSlips);
+                        });
+                        fetchDashboardSummary(selectedYear).then(freshSumm => {
+                          setSummary(freshSumm);
+                        });
+                      }} 
+                      onLogout={handleLogout}
+                    />
+                  );
+                })()}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          <NavBar currentView={currentView} setCurrentView={setCurrentView} isAdmin={accessCode?.toLowerCase() === 'admin'} lang={lang} />
+        </div>
     )}
 
     {/* Dynamic English-Only Logout Options Confirmation Modal */}

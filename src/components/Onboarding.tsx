@@ -124,6 +124,21 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     }
   }, [showLoginModal, gasUrl]);
 
+  // Prevent background body scroll when modals are active
+  useEffect(() => {
+    if (showFormModal || showLoginModal) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '0px';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [showFormModal, showLoginModal]);
+
   const handleExistingConnect = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -529,10 +544,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <div className="absolute top-[20%] left-[-100px] w-[500px] h-[550px] bg-[#e8edff]/50 rounded-full filter blur-[100px] pointer-events-none -z-10" />
 
       {/* Main Content Space */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col justify-between min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-5 lg:py-8 xl:py-10 flex flex-col justify-between min-h-screen">
         
         {/* Navigation Header */}
-        <header className="flex flex-row items-center justify-between border-b border-slate-100 pb-5 mb-10">
+        <header className="flex flex-row items-center justify-between border-b border-slate-100 pb-5 mb-12 lg:mb-16">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#003d9b] rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-900/10">
               <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
@@ -566,7 +581,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         </header>
 
         {/* Hero Area */}
-        <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-12">
+        <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-12 lg:mb-16">
           
           {/* Left Hero Column */}
           <div className="lg:col-span-7 space-y-6 text-left">
@@ -684,7 +699,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         </main>
 
         {/* Step-by-Step Interactive Guide: NO manual apps script edit */}
-        <section id="interactive-steps" className="bg-white rounded-2xl border border-slate-200/75 p-6 md:p-8 shadow-xs mb-12 space-y-8 scroll-mt-6">
+        <section id="interactive-steps" className="bg-white rounded-2xl border border-slate-200/75 p-6 md:p-8 lg:p-12 shadow-xs mb-12 lg:mb-16 space-y-8 lg:space-y-12 scroll-mt-6">
           <div className="text-center max-w-xl mx-auto space-y-3">
             <span className="text-[9px] uppercase font-bold text-[#003d9b] bg-[#e8edff] px-3.5 py-1 rounded-full border border-blue-100 tracking-wider">Zero-Code SaaS Deployment</span>
             <h2 className="text-xl md:text-3xl font-black text-[#041b3c] tracking-tight">Launch Your Custom Portal in Under 3 Minutes</h2>
@@ -764,7 +779,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         </section>
 
         {/* Feature Grid Details */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-16 lg:mb-24">
           <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-3xs space-y-3">
             <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-[#003d9b]">
               <Settings className="w-5 h-5" />
@@ -813,7 +828,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             />
 
             {/* Container for Centering */}
-            <div className="flex min-h-screen items-center justify-center p-3 sm:p-4 text-center z-50 relative pointer-events-none">
+            <div className="flex min-h-screen items-center justify-center p-3 sm:p-6 lg:p-8 text-center z-50 relative pointer-events-none">
 
               {/* Form Card Body */}
               <motion.div
@@ -821,10 +836,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 15 }}
                 transition={{ type: "spring", duration: 0.3 }}
-                className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-100 text-left z-50 flex flex-col pointer-events-auto max-h-[92vh] sm:max-h-[88vh] overflow-hidden"
+                className="relative w-full max-w-lg lg:max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-100 text-left z-50 flex flex-col pointer-events-auto max-h-[95vh] sm:max-h-[90vh] lg:max-h-[85vh] overflow-hidden"
               >
                 {/* Header Section */}
-                <div className="p-5 md:p-6 pb-4 border-b border-slate-100 relative pr-12 flex-shrink-0">
+                <div className="p-5 md:p-7 lg:p-8 pb-4 border-b border-slate-100 relative pr-12 flex-shrink-0">
                   <button
                     type="button"
                     disabled={submitting}
@@ -895,7 +910,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   className="flex flex-col flex-1 overflow-hidden"
                 >
                   {/* Scrollable Form Body */}
-                  <div className="p-5 md:p-6 space-y-4 overflow-y-auto flex-1 max-h-[50vh] sm:max-h-[60vh] select-none-scrollbar">
+                  <div className="p-5 md:p-7 lg:p-8 space-y-5 overflow-y-auto flex-1 max-h-[60vh] sm:max-h-[66vh] lg:max-h-[72vh] xl:max-h-[76vh] hide-scrollbar">
                     
                     {onboardingWizardStep === 1 && (
                       <div className="space-y-4 animate-in fade-in duration-200">
@@ -1121,9 +1136,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                           </div>
                         )}
                         {testStatus === 'failed' && (
-                          <div className="bg-red-50 text-red-800 border border-red-105 p-3 rounded-lg text-[10px] font-semibold space-y-0.5">
+                          <div className="bg-red-50 text-red-800 border border-red-200 p-3 rounded-lg text-[10px] font-semibold space-y-0.5">
                             <p className="font-bold text-red-900 flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-red-650 animate-pulse" />
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
                               <span>Connection Validation Failed</span>
                             </p>
                             <p className="text-slate-550 font-semibold leading-normal text-[10px]">{testError}</p>
@@ -1194,8 +1209,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         {/* General Submit Errors */}
                         {submitError && !duplicateWarning && (
                           <div className="bg-red-50 text-red-900 border border-red-100 p-3.5 rounded-lg text-[10.5px] font-medium space-y-0.5 text-left">
-                            <p className="font-bold text-red-955 flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-red-650" />
+                            <p className="font-bold text-red-900 flex items-center gap-1">
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
                               <span>Registration Error</span>
                             </p>
                             <p className="text-slate-500 font-semibold text-[10px]">{submitError}</p>
@@ -1210,7 +1225,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   </div>
 
                   {/* Fixed Footer */}
-                  <div className="p-4 md:p-5 border-t border-slate-100 bg-slate-50/60 flex-shrink-0 flex items-center justify-between gap-3">
+                  <div className="p-4 md:p-6 lg:p-7 border-t border-slate-100 bg-slate-50/60 flex-shrink-0 flex items-center justify-between gap-3">
                     {onboardingWizardStep > 1 ? (
                       <button
                         type="button"
@@ -1489,7 +1504,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 {/* Interactive Error Display */}
                 {loginError && (
                   <div className="bg-red-50 text-red-900 border border-red-100 p-3 rounded-xl flex items-start gap-2 animate-in fade-in zoom-in-95 duration-150">
-                    <AlertTriangle className="w-4 h-4 text-red-650 flex-shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-[11px] font-bold text-red-950">Authentication Failed</p>
                       <p className="text-[10px] text-slate-550 leading-relaxed font-semibold">{loginError}</p>

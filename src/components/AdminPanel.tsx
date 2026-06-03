@@ -227,6 +227,131 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSyncTrigger, onLogout 
 
   const [revealedAccessCodes, setRevealedAccessCodes] = useState<Record<string, boolean>>({});
   const [previewSlipItem, setPreviewSlipItem] = useState<MasterSlip | null>(null);
+  const [showAuditModal, setShowAuditModal] = useState(false);
+
+  const checkSlipMath = (slip: MasterSlip) => {
+    const totalEr = (slip.earnings || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+    const totalDe = (slip.deductions || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+    return Math.abs(totalEr - totalDe - slip.amount) < 0.1;
+  };
+
+  const getSlipMathAuditDetails = (slip: MasterSlip) => {
+    const totalEr = (slip.earnings || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+    const totalDe = (slip.deductions || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+    const calculatedNet = totalEr - totalDe;
+    const diff = calculatedNet - slip.amount;
+    const isValid = Math.abs(diff) < 0.1;
+    return {
+      totalEr,
+      totalDe,
+      calculatedNet,
+      diff,
+      isValid
+    };
+  };
+
+  const totalMismatchedSlips = slips.filter(s => !checkSlipMath(s));
+
+  const handleShowSingleMismatchAlert = (slip: MasterSlip) => {
+    const totalEr = (slip.earnings || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+    const totalDe = (slip.deductions || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+    const calculatedNet = totalEr - totalDe;
+    const diff = calculatedNet - slip.amount;
+
+    const msg = lang === 'en'
+      ? `Salary slip for ${slip.employeeName} in ${slip.month} ${slip.year} contains a math discrepancy!
+      
+• Stated Net Pay: ${formatAmount(slip.amount)}
+• Gross Earnings: ${formatAmount(totalEr)}
+• Total Deductions: ${formatAmount(totalDe)}
+• True Calculated Net Pay (Earnings - Deductions): ${formatAmount(calculatedNet)}
+
+Discrepancy: ${formatAmount(Math.abs(diff))} (${diff > 0 ? "Stated amount is too low" : "Stated amount is too high"}).
+
+Would you like to recalculate and update this slip's Net Pay automatically?`
+      : `قسيمة راتب ${slip.employeeName} لشهر ${slip.month} ${slip.year} تحتوي على خطأ حسابي!
+
+• صافي الراتب المسجل: ${formatAmount(slip.amount)}
+• إجمالي المستحقات: ${formatAmount(totalEr)}
+• إجمالي الخصومات: ${formatAmount(totalDe)}
+• صافي الراتب الحقيقي (المستحقات - الخصومات): ${formatAmount(calculatedNet)}
+
+الفارق الحسابي: ${formatAmount(Math.abs(diff))} (${diff > 0 ? "صافي الراتب المسجل منخفض جداً" : "صافي الراتب المسجل مرتفع جداً"}).
+
+هل ترغب في إعادة حساب وتحديث صافي الراتب لهذه القسيمة تلقائياً؟`;
+
+    triggerConfirm(
+      lang === 'en' ? "Calculation Audit Fix" : "تعديل تدقيق الحسابات",
+      msg,
+      async () => {
+        setIsDatabaseLoading(true);
+        try {
+          const updatedSlip: MasterSlip = {
+            ...slip,
+            amount: calculatedNet
+          };
+          const success = await saveAdminSlip(updatedSlip, slip.accessCode, slip.month, slip.year);
+          if (success) {
+            triggerFeedback(lang === 'en' ? "Slip math fixed successfully!" : "تم مطابقة وتعديل الحساب بنجاح!", "success");
+            await loadDatabase();
+            if (onSyncTrigger) onSyncTrigger();
+          } else {
+            triggerFeedback("Failed to update Google Sheet", "error");
+          }
+        } catch (err) {
+          triggerFeedback("Error updating slip math", "error");
+        } finally {
+          setIsDatabaseLoading(false);
+        }
+      },
+      'warning'
+    );
+  };
+
+  const handleAutoFixAllMismatches = async () => {
+    setIsDatabaseLoading(true);
+    let fixedCount = 0;
+    try {
+      const updatedSlips = slips.map(slip => {
+        const totalEr = (slip.earnings || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+        const totalDe = (slip.deductions || []).reduce((sum, item) => sum + Number(item.val || 0), 0);
+        const calculatedNet = totalEr - totalDe;
+        if (Math.abs(calculatedNet - slip.amount) >= 0.1) {
+          fixedCount++;
+          return {
+            ...slip,
+            amount: calculatedNet
+          };
+        }
+        return slip;
+      });
+
+      if (fixedCount === 0) {
+        triggerFeedback(lang === 'en' ? "No calculation mismatches found!" : "لا يوجد أي أخطاء حسابية حالياً!", "success");
+        setIsDatabaseLoading(false);
+        return;
+      }
+
+      const success = await importAdminData(employees, updatedSlips);
+      if (success) {
+        triggerFeedback(
+          lang === 'en' 
+            ? `Successfully audited & auto-corrected ${fixedCount} compensation slips!` 
+            : `تم تدقيق وتصحيح عدد ${fixedCount} قسيمة رواتب بنجاح!`, 
+          "success"
+        );
+        setShowAuditModal(false);
+        await loadDatabase();
+        if (onSyncTrigger) onSyncTrigger();
+      } else {
+        triggerFeedback("Database commit failed", "error");
+      }
+    } catch (err) {
+      triggerFeedback("Error correcting calculations", "error");
+    } finally {
+      setIsDatabaseLoading(false);
+    }
+  };
 
   const triggerConfirm = (
     title: string,
@@ -1131,74 +1256,123 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSyncTrigger, onLogout 
 
       {/* VIEW PANEL 2: MANAGE PAYSLIPS */}
       {activeSubTab === 'slips' && (
-        <div className="bg-white rounded-xl border border-[#D1E1F5] overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs md:text-sm">
-              <thead className="bg-[#E9F2FF] text-primary border-b border-blue-100 font-bold">
-                <tr>
-                  <th className="px-4 py-3">{t[lang].employeeName}</th>
-                  <th className="px-4 py-3">{t[lang].employeeId}</th>
-                  <th className="px-4 py-3">{t[lang].month}</th>
-                  <th className="px-4 py-3">{t[lang].year}</th>
-                  <th className="px-4 py-3">{t[lang].amount}</th>
-                  <th className="px-4 py-3">{t[lang].paymentDate}</th>
-                  <th className="px-4 py-3">{t[lang].status}</th>
-                  <th className="px-4 py-3 text-center">{t[lang].actions}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredSlips.length === 0 ? (
+        <div className="space-y-4">
+          {totalMismatchedSlips.length > 0 && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-sm">
+                    {lang === 'en' 
+                      ? `Math Audit Warning: ${totalMismatchedSlips.length} Payslip(s) have calculation discrepancies!` 
+                      : `تحذير تدقيق الحسابات: ${totalMismatchedSlips.length} من مسيرات الرواتب بها أخطاء حسابية!`}
+                  </p>
+                  <p className="text-xs text-rose-700 mt-1">
+                    {lang === 'en'
+                      ? "The saved Net Pay value does not match (Gross Earnings - Total Deductions) for some records. This can be caused by manual edits or incorrect import values."
+                      : "صافي الراتب المسجل غير متوافق مع معادلة (إجمالي المستحقات - إجمالي الخصومات) لبعض السجلات. قد يعود هذا لتعديلات يدوية أو قيم مستوردة خاطئة."}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAuditModal(true)}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-lg text-xs transition-colors shadow-sm cursor-pointer whitespace-nowrap self-end sm:self-auto"
+              >
+                {lang === 'en' ? "Open Audits Panel" : "لوحة التدقيق والتصحيح"}
+              </button>
+            </div>
+          )}
+
+          <div className="bg-white rounded-xl border border-[#D1E1F5] overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs md:text-sm">
+                <thead className="bg-[#E9F2FF] text-primary border-b border-blue-100 font-bold">
                   <tr>
-                    <td colSpan={8} className="text-center py-8 text-secondary font-medium">{t[lang].noData}</td>
+                    <th className="px-4 py-3">{t[lang].employeeName}</th>
+                    <th className="px-4 py-3">{t[lang].employeeId}</th>
+                    <th className="px-4 py-3">{t[lang].month}</th>
+                    <th className="px-4 py-3">{t[lang].year}</th>
+                    <th className="px-4 py-3">{t[lang].amount}</th>
+                    <th className="px-4 py-3">{t[lang].paymentDate}</th>
+                    <th className="px-4 py-3">{t[lang].status}</th>
+                    <th className="px-4 py-3 text-center">{t[lang].actions}</th>
                   </tr>
-                ) : (
-                  filteredSlips.map((slip, i) => (
-                    <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3 font-semibold text-on-surface">{slip.employeeName}</td>
-                      <td className="px-4 py-3 font-bold text-slate-600">#{slip.employeeId}</td>
-                      <td className="px-4 py-3 text-slate-700 font-mono">{slip.month}</td>
-                      <td className="px-4 py-3 font-medium text-slate-500">{slip.year}</td>
-                      <td className="px-4 py-3 font-bold text-primary">{formatAmount(slip.amount)}</td>
-                      <td className="px-4 py-3 text-slate-500 font-medium">{slip.paymentDate}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2.5 py-1 rounded-full text-caption font-bold ${
-                          slip.status.toLowerCase() === 'processed' 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
-                            : 'bg-amber-50 text-amber-700 border border-amber-150'
-                        }`}>
-                          {slip.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-center items-center gap-1.5">
-                          <button 
-                            onClick={() => setPreviewSlipItem(slip)}
-                            className="p-1.5 hover:bg-emerald-50 text-emerald-600 rounded-lg hover:text-emerald-700 transition-colors cursor-pointer"
-                            title={lang === 'en' ? "Preview Payslip" : "معاينة قسيمة الراتب"}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => openEditSlip(slip, i)}
-                            className="p-1.5 hover:bg-slate-100 text-slate-500 rounded-lg hover:text-primary transition-colors cursor-pointer"
-                            title={t[lang].editSlip}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteSlip(i)}
-                            className="p-1.5 hover:bg-red-50 text-slate-400 rounded-lg hover:text-error transition-colors cursor-pointer"
-                            title={t[lang].delete}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredSlips.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="text-center py-8 text-secondary font-medium">{t[lang].noData}</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredSlips.map((slip, i) => {
+                      const hasMathErr = !checkSlipMath(slip);
+                      return (
+                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-on-surface">{slip.employeeName}</td>
+                          <td className="px-4 py-3 font-bold text-slate-600">#{slip.employeeId}</td>
+                          <td className="px-4 py-3 text-slate-700 font-mono">{slip.month}</td>
+                          <td className="px-4 py-3 font-medium text-slate-500">{slip.year}</td>
+                          <td className="px-4 py-3 font-bold text-primary">
+                            <div className="flex items-center gap-1.5">
+                              <span>{formatAmount(slip.amount)}</span>
+                              {hasMathErr && (
+                                <span 
+                                  className="inline-flex items-center gap-0.5 text-[9px] text-rose-750 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded-md cursor-pointer animate-pulse"
+                                  title={lang === 'en' ? "Audit discrepancy found. Click to fix math." : "فارق حسابي مكتشف. انقر للتصحيح."}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShowSingleMismatchAlert(slip);
+                                  }}
+                                >
+                                  <AlertTriangle className="w-3 h-3 text-rose-500" />
+                                  <span>{lang === 'en' ? "Mismatch" : "خطأ حسابي"}</span>
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 font-medium">{slip.paymentDate}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2.5 py-1 rounded-full text-caption font-bold ${
+                              slip.status.toLowerCase() === 'processed' 
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            }`}>
+                              {slip.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex justify-center items-center gap-1.5">
+                              <button 
+                                onClick={() => setPreviewSlipItem(slip)}
+                                className="p-1.5 hover:bg-emerald-50 text-emerald-600 rounded-lg hover:text-emerald-700 transition-colors cursor-pointer"
+                                title={lang === 'en' ? "Preview Payslip" : "معاينة قسيمة الراتب"}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => openEditSlip(slip, i)}
+                                className="p-1.5 hover:bg-slate-100 text-slate-500 rounded-lg hover:text-primary transition-colors cursor-pointer"
+                                title={t[lang].editSlip}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteSlip(i)}
+                                className="p-1.5 hover:bg-red-50 text-slate-400 rounded-lg hover:text-error transition-colors cursor-pointer"
+                                title={t[lang].delete}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -1378,7 +1552,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSyncTrigger, onLogout 
 
                     <div className="border border-slate-100 bg-red-50/20 p-4 rounded-xl">
                       <h4 className="text-red-800 font-bold text-xs flex items-center gap-1 mb-1">
-                        <X className="w-4 h-4 text-red-650" />
+                        <X className="w-4 h-4 text-rose-600" />
                         {t[lang].deductionsColumns}
                       </h4>
                       <p className="text-caption text-red-600 mb-3">{t[lang].deductionAmtDesc}</p>
@@ -2150,6 +2324,108 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSyncTrigger, onLogout 
                 </button>
               </div>
 
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {showAuditModal && (
+        <div className="fixed inset-0 bg-[#041b3c]/60 backdrop-blur-xs z-[105] overflow-y-auto flex justify-center items-start p-4 sm:p-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 15, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="w-full max-w-2xl bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-100 my-auto sm:my-8"
+          >
+            {/* Header */}
+            <div className={`px-6 py-4 flex justify-between items-center border-b border-light bg-slate-50 ${isRtl ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                <AlertTriangle className="w-5 h-5 text-rose-600 animate-pulse" />
+                <h3 className="font-bold text-on-background text-sm sm:text-base">
+                  {lang === 'en' ? 'Quality Assurance Calculation Audit' : 'تدقيق ومطابقة العمليات الحسابية لمسيرات الرواتب'}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowAuditModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-full cursor-pointer hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto" style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
+              <p className="text-slate-500 text-xs leading-relaxed">
+                {lang === 'en' 
+                  ? 'The automated mathematical audit system detected the following discrepancies between registered Net Pay amounts and calculated totals (Gross Earnings - Total Deductions).'
+                  : 'قام نظام التدقيق المالي برصد الفروقات الحسابية التالية بين صافي الرواتب المسلّمة ومجموع المستحقات بعد خصم الاستقطاعات:'}
+              </p>
+
+              <div className="space-y-3">
+                {totalMismatchedSlips.map((mSlip, mIdx) => {
+                  const details = getSlipMathAuditDetails(mSlip);
+                  return (
+                    <div key={mIdx} className="border border-rose-100 bg-rose-50/20 p-4 rounded-xl space-y-3 shadow-2xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-100/40 pb-2">
+                        <div>
+                          <h4 className="font-extrabold text-[#041b3c] text-xs sm:text-sm">{mSlip.employeeName}</h4>
+                          <span className="text-[10px] text-slate-500 font-mono">#{mSlip.employeeId} • {mSlip.month} {mSlip.year}</span>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 self-start sm:self-auto uppercase">
+                          {lang === 'en' ? `Diff: ${formatAmount(Math.abs(details.diff))}` : `الفارق: ${formatAmount(Math.abs(details.diff))}`}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] text-slate-400 font-bold uppercase">{lang === 'en' ? 'Stated Net Pay' : 'الصافي المسجل'}</p>
+                          <p className="text-xs font-black text-slate-800 font-mono mt-0.5">{formatAmount(mSlip.amount)}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] text-emerald-600 font-bold uppercase">{lang === 'en' ? 'Gross Earnings' : 'المستحقات'}</p>
+                          <p className="text-xs font-black text-emerald-700 font-mono mt-0.5">+{formatAmount(details.totalEr)}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] text-red-600 font-bold uppercase">{lang === 'en' ? 'Deductions' : 'الخصومات'}</p>
+                          <p className="text-xs font-black text-red-700 font-mono mt-0.5">-{formatAmount(details.totalDe)}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] text-primary font-bold uppercase">{lang === 'en' ? 'True Net Pay' : 'الصافي الحسابي'}</p>
+                          <p className="text-xs font-black text-primary font-mono mt-0.5">{formatAmount(details.calculatedNet)}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handleShowSingleMismatchAlert(mSlip)}
+                          className="h-8 px-3 bg-[#E9F2FF] hover:bg-blue-100 text-primary font-bold rounded-lg text-[11px] transition-colors cursor-pointer"
+                        >
+                          {lang === 'en' ? "Fix Stated Net Pay" : "تصحيح صافي الراتب"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className={`px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 ${isRtl ? 'sm:flex-row-reverse' : ''}`}>
+              <button
+                type="button"
+                onClick={() => setShowAuditModal(false)}
+                className="w-full sm:w-auto h-10 px-6 border border-slate-200 hover:bg-slate-100 font-bold text-slate-600 rounded-xl text-xs transition-colors cursor-pointer"
+              >
+                {lang === 'en' ? "Close" : "إغلاق"}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleAutoFixAllMismatches}
+                className="w-full sm:w-auto h-10 px-6 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-xl text-xs transition-all shadow-md shadow-rose-200 cursor-pointer"
+              >
+                {lang === 'en' ? "Auto-Correct All Math Discrepancies" : "تصحيح كافة الأخطاء الحسابية تلقائياً"}
+              </button>
             </div>
           </motion.div>
         </div>
