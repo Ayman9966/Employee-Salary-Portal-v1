@@ -2,28 +2,32 @@
 
 AirSlip is a professional, mobile-first, and highly optimized Employee Salary Portal and Enterprise Payroll Control Console. It enables modern organizations to operate a fully transparent, highly responsive, and secure payroll distribution system directly on top of **Google Sheets** using a serverless **Google Apps Script (GAS)** Web App backend, bypassing the need for complex, heavy SQL databases.
 
-Employees can securely access monthly payslips, inspect year-to-date earnings trends, and download bilingual breakdowns. At the same time, administrators can manage files, review staff metrics, and issue payslips through our elegant portal.
+Employees can securely access monthly payslips, inspect year-to-date earnings trends, and download bilingual breakdowns. At the same time, administrators can manage files, review staff metrics, issue payslips through our elegant portal, and instantly onboard new employees using AirSlip's **Zero-Environment Auto-Onboarding**.
 
 ---
 
 ## 🚀 Key Modules & Capabilities
 
+### 📱 Progressive Web App (PWA) & Borderless Mobile Experience
+- **Native OS Feel:** Installable directly to iOS & Android home screens with zero browser margins.
+- **Offline Resiliency:** Automatic local cache storage policies for seamless network transitions.
+- **Integrated Install Flow:** Context-aware mobile setup guide inside the app for seamless PWA installations across Safari and Chrome.
+
 ### 👤 Employee & Workforce Portal
 - **Zero-Friction Access:** Fully secure authentication utilizing individual corporate Employee Access Codes.
 - **Dynamic Year-To-Date (YTD) Analytics:** Direct calculations on total earnings, deductions, and tax withholdings with visual metrics.
-- **Bilingual Payslip Layouts:** Mobile-optimized, print-ready, bilingual breakdowns showing precise calculations.
-- **Offline Resiliency:** Automatic local cache storage policies for seamless network transitions.
+- **Bilingual Payslip Layouts:** Mobile-optimized, print-ready, bilingual breakdowns (English & Arabic) showing precise calculations.
 
 ### 💼 Administrator Control Hub
+- **Zero-Environment Auto-Onboarding:** Generate secure `?invite=` URLs that instantly configure the workspace on any employee's phone for 60 seconds.
 - **Employee Directory Management:** Create, update, or remove personnel profiles right from the portal or directly inside Google Sheets.
 - **Payslip Ledger Distribution:** Add, modify, or delete monthly payslip entries with a real-time validation engine.
 - **Bulk Data Migration:** Seamless JSON imports/exports for fast onboarding of organizations.
-- **Automated Validation:** Instant alerts for mathematical variance, bad formatting, or duplicate keys.
 
-### 📊 Google Sheets Database Model
+### 📊 Backend & Google Sheets Integration
+- **Serverless API Proxy:** Vercel serverless functions (`/api/*`) securely map to Google Apps Script endpoints to bypass CORS issues and secure deployment.
 - **Zero-Infrastructure Setup:** Runs entirely inside lightweight, secure Google Sheets rows.
-- **Dynamic Headers Support:** Create custom columns in your ledger prepended with `ER_` (Earnings) or `DE_` (Deductions); AirSlip's parser dynamically parses them on the fly.
-- **Google Sheet Alerts:** Row highlighting for review status or calculations mismatch inside Google Sheets.
+- **Dynamic Headers Support:** Create custom columns in your ledger prepended with `ER_` (Earnings) or `DE_` (Deductions); AirSlip's parser dynamically creates categories on the fly.
 
 ---
 
@@ -32,6 +36,7 @@ Employees can securely access monthly payslips, inspect year-to-date earnings tr
 - **Client Application:** React 18 (Vite, TypeScript 5)
 - **Fluid Layouts & Styling:** Tailwind CSS
 - **Micro-interactions:** Framer Motion (`motion/react`)
+- **API Translation:** Vercel Serverless Functions (`/api/*`)
 - **Backend Infrastructure:** Google Apps Script Serverless Endpoint
 - **Data Store:** Google Sheets (Fully isolated tenant sheets)
 
