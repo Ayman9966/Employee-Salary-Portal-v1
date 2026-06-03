@@ -1231,7 +1231,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                               <button
                                 type="button"
                                 onClick={handleBypassWithDuplicate}
-                                className="px-3 py-2 bg-amber-650 text-white hover:bg-amber-700 font-bold rounded-lg text-[10.5px] cursor-pointer"
+                                className="px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[10.5px] cursor-pointer"
                               >
                                 Bypass & Activate Now
                               </button>
