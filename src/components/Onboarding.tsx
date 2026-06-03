@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { verifyAdminLogin } from '../services/dataService';
-import { 
-  ShieldCheck, 
-  HelpCircle, 
-  Activity, 
-  Mail, 
-  MessageSquare, 
-  CheckCircle, 
-  Sparkles, 
-  ArrowRight, 
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { verifyAdminLogin } from "../services/dataService";
+import {
+  ShieldCheck,
+  HelpCircle,
+  Activity,
+  Mail,
+  MessageSquare,
+  CheckCircle,
+  Sparkles,
+  ArrowRight,
   ArrowLeft,
-  Lock, 
-  Settings, 
-  FileText, 
+  Lock,
+  Settings,
+  FileText,
   X,
   UserCheck,
   AlertTriangle,
@@ -21,8 +21,8 @@ import {
   Clock,
   ExternalLink,
   ChevronRight,
-  Database
-} from 'lucide-react';
+  Database,
+} from "lucide-react";
 
 interface OnboardingProps {
   onComplete: (config: {
@@ -36,31 +36,53 @@ interface OnboardingProps {
 
 export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   // Restore state from LocalStorage so data is preserved until complete
-  const [companyName, setCompanyName] = useState(() => localStorage.getItem('salaryportal_onboard_companyName') || '');
-  const [whatsapp, setWhatsapp] = useState(() => localStorage.getItem('salaryportal_onboard_whatsapp') || '');
-  const [email, setEmail] = useState(() => localStorage.getItem('salaryportal_onboard_email') || '');
-  const [companySize, setCompanySize] = useState(() => localStorage.getItem('salaryportal_onboard_companySize') || '');
-  const [gasUrl, setGasUrl] = useState(() => localStorage.getItem('salaryportal_onboard_gasUrl') || '');
+  const [companyName, setCompanyName] = useState(
+    () => localStorage.getItem("salaryportal_onboard_companyName") || "",
+  );
+  const [whatsapp, setWhatsapp] = useState(
+    () => localStorage.getItem("salaryportal_onboard_whatsapp") || "",
+  );
+  const [email, setEmail] = useState(
+    () => localStorage.getItem("salaryportal_onboard_email") || "",
+  );
+  const [companySize, setCompanySize] = useState(
+    () => localStorage.getItem("salaryportal_onboard_companySize") || "",
+  );
+  const [gasUrl, setGasUrl] = useState(
+    () => localStorage.getItem("salaryportal_onboard_gasUrl") || "",
+  );
 
   // UI state for activation / configuration step
-  const [showFormModal, setShowFormModal] = useState(() => localStorage.getItem('salaryportal_onboard_showFormModal') === 'true');
+  const [showFormModal, setShowFormModal] = useState(
+    () => localStorage.getItem("salaryportal_onboard_showFormModal") === "true",
+  );
   const [onboardingWizardStep, setOnboardingWizardStep] = useState(() => {
-    const saved = localStorage.getItem('salaryportal_onboard_onboardingWizardStep');
+    const saved = localStorage.getItem(
+      "salaryportal_onboard_onboardingWizardStep",
+    );
     return saved ? parseInt(saved, 10) : 1;
   });
-  
+
   // Validation status hooks
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   // Setup testing state
   const [testing, setTesting] = useState(false);
-  const [testStatus, setTestStatus] = useState<'idle' | 'success' | 'failed'>('idle');
-  const [testError, setTestError] = useState('');
+  const [testStatus, setTestStatus] = useState<"idle" | "success" | "failed">(
+    "idle",
+  );
+  const [testError, setTestError] = useState("");
 
   // Setup submit & registration state
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [duplicateWarning, setDuplicateWarning] = useState<null | { email: string, gasUrl: string, alreadyExists: boolean }>(null);
+  const [submitError, setSubmitError] = useState("");
+  const [duplicateWarning, setDuplicateWarning] = useState<null | {
+    email: string;
+    gasUrl: string;
+    alreadyExists: boolean;
+  }>(null);
 
   // Timeout monitoring triggers
   const [isTakingTooLong, setIsTakingTooLong] = useState(false);
@@ -68,31 +90,37 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   // Sync inputs dynamically with localStorage to preserve until successful complete
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_companyName', companyName);
+    localStorage.setItem("salaryportal_onboard_companyName", companyName);
   }, [companyName]);
 
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_whatsapp', whatsapp);
+    localStorage.setItem("salaryportal_onboard_whatsapp", whatsapp);
   }, [whatsapp]);
 
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_email', email);
+    localStorage.setItem("salaryportal_onboard_email", email);
   }, [email]);
 
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_companySize', companySize);
+    localStorage.setItem("salaryportal_onboard_companySize", companySize);
   }, [companySize]);
 
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_gasUrl', gasUrl);
+    localStorage.setItem("salaryportal_onboard_gasUrl", gasUrl);
   }, [gasUrl]);
 
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_showFormModal', showFormModal ? 'true' : 'false');
+    localStorage.setItem(
+      "salaryportal_onboard_showFormModal",
+      showFormModal ? "true" : "false",
+    );
   }, [showFormModal]);
 
   useEffect(() => {
-    localStorage.setItem('salaryportal_onboard_onboardingWizardStep', onboardingWizardStep.toString());
+    localStorage.setItem(
+      "salaryportal_onboard_onboardingWizardStep",
+      onboardingWizardStep.toString(),
+    );
   }, [onboardingWizardStep]);
 
   // Submitting stopwatch timer
@@ -117,12 +145,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   // Login/Admin Login modal state
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [loginGasUrl, setLoginGasUrl] = useState('');
-  const [loginTab, setLoginTab] = useState<'staff' | 'admin'>('staff');
-  const [loginAccessCode, setLoginAccessCode] = useState('');
-  const [loginAdminEmail, setLoginAdminEmail] = useState('');
-  const [loginAdminPassword, setLoginAdminPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
+  const [loginGasUrl, setLoginGasUrl] = useState("");
+  const [loginTab, setLoginTab] = useState<"staff" | "admin">("staff");
+  const [loginAccessCode, setLoginAccessCode] = useState("");
+  const [loginAdminEmail, setLoginAdminEmail] = useState("");
+  const [loginAdminPassword, setLoginAdminPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
   const [loginSubmitting, setLoginSubmitting] = useState(false);
   const [loginInviteCopied, setLoginInviteCopied] = useState(false);
 
@@ -130,39 +158,41 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   useEffect(() => {
     if (showLoginModal) {
-      setLoginGasUrl(gasUrl || '');
-      setLoginError('');
+      setLoginGasUrl(gasUrl || "");
+      setLoginError("");
     }
   }, [showLoginModal, gasUrl]);
 
   // Prevent background body scroll when modals are active
   useEffect(() => {
     if (showFormModal || showLoginModal) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = '0px';
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = "0px";
     } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     }
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [showFormModal, showLoginModal]);
 
   const handleExistingConnect = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError('');
+    setLoginError("");
 
-    const targetGasUrl = (isCompanySetup ? (loginGasUrl || gasUrl) : loginGasUrl).trim();
+    const targetGasUrl = (
+      isCompanySetup ? loginGasUrl || gasUrl : loginGasUrl
+    ).trim();
 
     if (!targetGasUrl) {
-      setLoginError('Google Apps Script URL is required');
+      setLoginError("Google Apps Script URL is required");
       return;
     }
 
-    if (!targetGasUrl.startsWith('https://script.google.com/macros/')) {
-      setLoginError('Must start with: https://script.google.com/macros/');
+    if (!targetGasUrl.startsWith("https://script.google.com/macros/")) {
+      setLoginError("Must start with: https://script.google.com/macros/");
       return;
     }
 
@@ -170,49 +200,57 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
     try {
       // Temporarily store gasUrl in localStorage so verifyAdminLogin can use it
-      localStorage.setItem('gas_url', targetGasUrl);
+      localStorage.setItem("gas_url", targetGasUrl);
 
-      if (loginTab === 'admin') {
+      if (loginTab === "admin") {
         if (!loginAdminEmail.trim() || !loginAdminPassword.trim()) {
-          setLoginError('Admin email and password are required');
+          setLoginError("Admin email and password are required");
           setLoginSubmitting(false);
           return;
         }
 
-        const authRes = await verifyAdminLogin(loginAdminEmail, loginAdminPassword);
+        const authRes = await verifyAdminLogin(
+          loginAdminEmail,
+          loginAdminPassword,
+        );
         if (authRes.success) {
-          localStorage.setItem('access_code', 'admin');
+          localStorage.setItem("access_code", "admin");
           clearPreservedData();
           onComplete({
-            companyName: companyName.trim() || 'AirSlip Enterprise',
-            whatsapp: whatsapp.trim() || '',
+            companyName: companyName.trim() || "AirSlip Enterprise",
+            whatsapp: whatsapp.trim() || "",
             email: loginAdminEmail.trim(),
-            companySize: companySize || '11-50 Members',
-            gasUrl: targetGasUrl
+            companySize: companySize || "11-50 Members",
+            gasUrl: targetGasUrl,
           });
         } else {
-          setLoginError(authRes.error || 'Authentication failed. Please verify credentials.');
-          localStorage.removeItem('gas_url'); // cleanup on failure
+          setLoginError(
+            authRes.error ||
+              "Authentication failed. Please verify credentials.",
+          );
+          localStorage.removeItem("gas_url"); // cleanup on failure
         }
       } else {
         // Staff Sign In Path.
         // We set access code optionally if entered
         if (loginAccessCode.trim()) {
-          localStorage.setItem('access_code', loginAccessCode.trim());
+          localStorage.setItem("access_code", loginAccessCode.trim());
         }
         clearPreservedData();
         onComplete({
-          companyName: companyName.trim() || 'AirSlip Workforce',
-          whatsapp: whatsapp.trim() || '',
-          email: '',
-          companySize: companySize || '11-50 Members',
-          gasUrl: targetGasUrl
+          companyName: companyName.trim() || "AirSlip Workforce",
+          whatsapp: whatsapp.trim() || "",
+          email: "",
+          companySize: companySize || "11-50 Members",
+          gasUrl: targetGasUrl,
         });
       }
     } catch (err: any) {
       console.error(err);
-      setLoginError('Failed to establish secure connection with your Google Sheet.');
-      localStorage.removeItem('gas_url');
+      setLoginError(
+        "Failed to establish secure connection with your Google Sheet.",
+      );
+      localStorage.removeItem("gas_url");
     } finally {
       setLoginSubmitting(false);
     }
@@ -220,52 +258,64 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   // Helper to clear cached registration inputs on complete
   const clearPreservedData = () => {
-    localStorage.removeItem('salaryportal_onboard_companyName');
-    localStorage.removeItem('salaryportal_onboard_whatsapp');
-    localStorage.removeItem('salaryportal_onboard_email');
-    localStorage.removeItem('salaryportal_onboard_companySize');
-    localStorage.removeItem('salaryportal_onboard_gasUrl');
-    localStorage.removeItem('salaryportal_onboard_showFormModal');
-    localStorage.removeItem('salaryportal_onboard_onboardingWizardStep');
+    localStorage.removeItem("salaryportal_onboard_companyName");
+    localStorage.removeItem("salaryportal_onboard_whatsapp");
+    localStorage.removeItem("salaryportal_onboard_email");
+    localStorage.removeItem("salaryportal_onboard_companySize");
+    localStorage.removeItem("salaryportal_onboard_gasUrl");
+    localStorage.removeItem("salaryportal_onboard_showFormModal");
+    localStorage.removeItem("salaryportal_onboard_onboardingWizardStep");
   };
 
   const validateFields = (): boolean => {
     const errors: Record<string, string> = {};
-    
+
     if (!companyName.trim()) {
-      errors.companyName = 'Company name is required';
+      errors.companyName = "Company name is required";
     } else if (companyName.trim().length < 3) {
-      errors.companyName = 'Company name must be at least 3 characters';
+      errors.companyName = "Company name must be at least 3 characters";
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
-      errors.email = 'Corporate email address is required';
+      errors.email = "Corporate email address is required";
     } else if (!emailRegex.test(email.trim())) {
-      errors.email = 'Please provide a valid corporate email pattern';
+      errors.email = "Please provide a valid corporate email pattern";
     }
 
     // Whatsapp format: numeric minimum filter
-    const cleanedWhatsapp = whatsapp.replace(/\D/g, '');
+    const cleanedWhatsapp = whatsapp.replace(/\D/g, "");
     if (whatsapp.trim() && cleanedWhatsapp.length < 8) {
-      errors.whatsapp = 'WhatsApp number should be a valid international code (min. 8 digits)';
+      errors.whatsapp =
+        "WhatsApp number should be a valid international code (min. 8 digits)";
     }
 
     if (!companySize) {
-      errors.companySize = 'Company size selection is required';
+      errors.companySize = "Company size selection is required";
     }
 
     // GAS URL validation
     const trimmedGasUrl = gasUrl.trim();
     if (!trimmedGasUrl) {
-      errors.gasUrl = 'Google Apps Script Web App URL is required';
-    } else if (trimmedGasUrl.includes('script.google.com') && (trimmedGasUrl.includes('/edit') || trimmedGasUrl.includes('/u/'))) {
-      errors.gasUrl = 'This is your Apps Script Editor URL! Please deploy it: "Deploy" -> "New Deployment" -> select Type: "Web App", and copy the Web App URL (must end with /exec).';
-    } else if (!trimmedGasUrl.startsWith('https://script.google.com/macros/s/')) {
-      errors.gasUrl = 'Invalid Web App URL layout. Correct URLs must start with "https://script.google.com/macros/s/"';
-    } else if (!trimmedGasUrl.endsWith('/exec') && !trimmedGasUrl.includes('/exec?')) {
-      errors.gasUrl = 'Expected URL to end with "/exec". Verify that you copied the Deployed Web App URL instead of an editor or dev link.';
+      errors.gasUrl = "Google Apps Script Web App URL is required";
+    } else if (
+      trimmedGasUrl.includes("script.google.com") &&
+      (trimmedGasUrl.includes("/edit") || trimmedGasUrl.includes("/u/"))
+    ) {
+      errors.gasUrl =
+        'This is your Apps Script Editor URL! Please deploy it: "Deploy" -> "New Deployment" -> select Type: "Web App", and copy the Web App URL (must end with /exec).';
+    } else if (
+      !trimmedGasUrl.startsWith("https://script.google.com/macros/s/")
+    ) {
+      errors.gasUrl =
+        'Invalid Web App URL layout. Correct URLs must start with "https://script.google.com/macros/s/"';
+    } else if (
+      !trimmedGasUrl.endsWith("/exec") &&
+      !trimmedGasUrl.includes("/exec?")
+    ) {
+      errors.gasUrl =
+        'Expected URL to end with "/exec". Verify that you copied the Deployed Web App URL instead of an editor or dev link.';
     }
 
     setValidationErrors(errors);
@@ -273,25 +323,32 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   };
 
   const handleTestConnection = async () => {
-    setTestStatus('idle');
-    setTestError('');
+    setTestStatus("idle");
+    setTestError("");
 
     const trimmedGasUrl = gasUrl.trim();
     if (!trimmedGasUrl) {
-      setTestStatus('failed');
-      setTestError('Please enter a Google Apps Script Web App URL first.');
+      setTestStatus("failed");
+      setTestError("Please enter a Google Apps Script Web App URL first.");
       return;
     }
 
-    if (trimmedGasUrl.includes('script.google.com') && (trimmedGasUrl.includes('/edit') || trimmedGasUrl.includes('/u/'))) {
-      setTestStatus('failed');
-      setTestError('This is an Editor URL! Click Deploy -> New Deployment -> Choose Type: Web App, set Access: "Anyone", copy Web App URL.');
+    if (
+      trimmedGasUrl.includes("script.google.com") &&
+      (trimmedGasUrl.includes("/edit") || trimmedGasUrl.includes("/u/"))
+    ) {
+      setTestStatus("failed");
+      setTestError(
+        'This is an Editor URL! Click Deploy -> New Deployment -> Choose Type: Web App, set Access: "Anyone", copy Web App URL.',
+      );
       return;
     }
 
-    if (!trimmedGasUrl.startsWith('https://script.google.com/macros/s/')) {
-      setTestStatus('failed');
-      setTestError('Web App URLs must start with: https://script.google.com/macros/s/');
+    if (!trimmedGasUrl.startsWith("https://script.google.com/macros/s/")) {
+      setTestStatus("failed");
+      setTestError(
+        "Web App URLs must start with: https://script.google.com/macros/s/",
+      );
       return;
     }
 
@@ -302,20 +359,27 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       const timeoutId = setTimeout(() => controller.abort(), 6500);
 
       const res = await fetch(`${gasUrl.trim()}?action=testConnection`, {
-        signal: controller.signal
+        signal: controller.signal,
       });
       clearTimeout(timeoutId);
 
-      if (res.ok || res.status === 200 || res.status === 302 || res.type === 'opaque') {
-        setTestStatus('success');
+      if (
+        res.ok ||
+        res.status === 200 ||
+        res.status === 302 ||
+        res.type === "opaque"
+      ) {
+        setTestStatus("success");
       } else {
-        setTestStatus('failed');
-        setTestError(`Target returned status code ${res.status}. Verify deployment settings.`);
+        setTestStatus("failed");
+        setTestError(
+          `Target returned status code ${res.status}. Verify deployment settings.`,
+        );
       }
     } catch (e: any) {
-      console.warn('Test connection warning (standard CORS behavior):', e);
+      console.warn("Test connection warning (standard CORS behavior):", e);
       // fallback success representation
-      setTestStatus('success');
+      setTestStatus("success");
     } finally {
       setTesting(false);
     }
@@ -323,27 +387,27 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   const handleGoToLogin = () => {
     setShowFormModal(false);
-    setLoginTab('admin');
+    setLoginTab("admin");
     setLoginGasUrl(gasUrl.trim());
     setLoginAdminEmail(email.trim());
-    setLoginError('');
+    setLoginError("");
     setShowLoginModal(true);
   };
 
   const handleBypassWithDuplicate = () => {
     clearPreservedData();
     onComplete({
-      companyName: companyName.trim() || 'Payroll Enterprise',
-      whatsapp: whatsapp.trim() || '',
+      companyName: companyName.trim() || "Payroll Enterprise",
+      whatsapp: whatsapp.trim() || "",
       email: email.trim(),
       companySize,
-      gasUrl: gasUrl.trim()
+      gasUrl: gasUrl.trim(),
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitError('');
+    setSubmitError("");
     setDuplicateWarning(null);
 
     if (!validateFields()) {
@@ -356,12 +420,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
     try {
       const payload = {
-        action: 'saveTenant',
+        action: "saveTenant",
         companyName: companyName.trim(),
         whatsapp: whatsapp.trim(),
         email: email.trim(),
         companySize,
-        gasUrl: gasUrl.trim()
+        gasUrl: gasUrl.trim(),
       };
 
       const controller = new AbortController();
@@ -369,26 +433,32 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         controller.abort();
       }, 25000);
 
-      const res = await fetch('/api/register-tenant', {
-        method: 'POST',
+      const res = await fetch("/api/register-tenant", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-        signal: controller.signal
+        signal: controller.signal,
       });
-      
+
       clearTimeout(submitTimeoutId);
       const data = await res.json().catch(() => null);
 
       if (!res.ok || (data && data.success === false)) {
-        const errorMsg = (data && data.error) || `Registration rejected by server (status: ${res.status})`;
+        const errorMsg =
+          (data && data.error) ||
+          `Registration rejected by server (status: ${res.status})`;
         const lowerError = errorMsg.toLowerCase();
-        if (lowerError.includes('already registered') || lowerError.includes('duplicate') || (data && data.alreadyExists)) {
+        if (
+          lowerError.includes("already registered") ||
+          lowerError.includes("duplicate") ||
+          (data && data.alreadyExists)
+        ) {
           setDuplicateWarning({
             email: email.trim(),
             gasUrl: gasUrl.trim(),
-            alreadyExists: !!(data && data.alreadyExists)
+            alreadyExists: !!(data && data.alreadyExists),
           });
           return;
         }
@@ -401,14 +471,18 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         whatsapp: whatsapp.trim(),
         email: email.trim(),
         companySize,
-        gasUrl: gasUrl.trim()
+        gasUrl: gasUrl.trim(),
       });
     } catch (err: any) {
-      console.error('Super Admin registration failed:', err);
-      if (err.name === 'AbortError') {
-        setSubmitError('Connection to Google Sheet endpoint timed out. Double check and test your Apps Script setup.');
+      console.error("Super Admin registration failed:", err);
+      if (err.name === "AbortError") {
+        setSubmitError(
+          "Connection to Google Sheet endpoint timed out. Double check and test your Apps Script setup.",
+        );
       } else {
-        setSubmitError(err.message || 'Failed to sync with Super Admin Portfolio database.');
+        setSubmitError(
+          err.message || "Failed to sync with Super Admin Portfolio database.",
+        );
       }
     } finally {
       setSubmitting(false);
@@ -416,39 +490,39 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   };
 
   const handleClearFields = () => {
-    setCompanyName('');
-    setWhatsapp('');
-    setEmail('');
-    setCompanySize('');
-    setGasUrl('');
-    setTestStatus('idle');
+    setCompanyName("");
+    setWhatsapp("");
+    setEmail("");
+    setCompanySize("");
+    setGasUrl("");
+    setTestStatus("idle");
     setValidationErrors({});
-    setSubmitError('');
+    setSubmitError("");
     setDuplicateWarning(null);
-    localStorage.removeItem('salaryportal_onboard_companyName');
-    localStorage.removeItem('salaryportal_onboard_whatsapp');
-    localStorage.removeItem('salaryportal_onboard_email');
-    localStorage.removeItem('salaryportal_onboard_companySize');
-    localStorage.removeItem('salaryportal_onboard_gasUrl');
-    localStorage.removeItem('salaryportal_onboard_showFormModal');
-    localStorage.removeItem('salaryportal_onboard_onboardingWizardStep');
+    localStorage.removeItem("salaryportal_onboard_companyName");
+    localStorage.removeItem("salaryportal_onboard_whatsapp");
+    localStorage.removeItem("salaryportal_onboard_email");
+    localStorage.removeItem("salaryportal_onboard_companySize");
+    localStorage.removeItem("salaryportal_onboard_gasUrl");
+    localStorage.removeItem("salaryportal_onboard_showFormModal");
+    localStorage.removeItem("salaryportal_onboard_onboardingWizardStep");
   };
 
   const handleNextStep = () => {
     const errors: Record<string, string> = {};
     if (onboardingWizardStep === 1) {
       if (!companyName.trim()) {
-        errors.companyName = 'Company name is required';
+        errors.companyName = "Company name is required";
       } else if (companyName.trim().length < 2) {
-        errors.companyName = 'Company name must be at least 2 characters';
+        errors.companyName = "Company name must be at least 2 characters";
       }
       if (!companySize) {
-        errors.companySize = 'Please select your company size';
+        errors.companySize = "Please select your company size";
       }
       if (!email.trim()) {
-        errors.email = 'Admin email is required';
+        errors.email = "Admin email is required";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-        errors.email = 'Please provide a valid diagnostic email address';
+        errors.email = "Please provide a valid diagnostic email address";
       }
 
       if (Object.keys(errors).length > 0) {
@@ -457,11 +531,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       }
       setValidationErrors({});
     }
-    setOnboardingWizardStep(prev => prev + 1);
+    setOnboardingWizardStep((prev) => prev + 1);
   };
 
   const handlePrevStep = () => {
-    setOnboardingWizardStep(prev => Math.max(1, prev - 1));
+    setOnboardingWizardStep((prev) => Math.max(1, prev - 1));
   };
 
   const handleOpenNewOnboarding = () => {
@@ -476,112 +550,133 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   };
 
   const handleLaunchWithDemoSandbox = () => {
-    const demoUrl = 'https://script.google.com/macros/s/AKfycbwgaIAX4V4bLMTfoyl_D83sKt2HXw6vqqMftJPEU-aWgeh4Te5oFvoQTUEsX4m2DBrbnQ/exec';
-    
+    const demoUrl =
+      "https://script.google.com/macros/s/AKfycbwgaIAX4V4bLMTfoyl_D83sKt2HXw6vqqMftJPEU-aWgeh4Te5oFvoQTUEsX4m2DBrbnQ/exec";
+
     // Seed exactly 3 clean mock employees and slips in the local storage DB for the AirSlip Demo experience
     const demoEmployees = [
-      { accessCode: '1234', employeeId: 'ARC001', name: 'Alexander Sterling', title: 'Principal Architect', department: 'Technology', joiningDate: '12/01/2022' },
-      { accessCode: '5678', employeeId: 'MNG042', name: 'Elizabeth Vance', title: 'HR Business Partner', department: 'Human Resources', joiningDate: '05/03/2023' },
-      { accessCode: '9012', employeeId: 'FIN088', name: 'Marcus Aurelius', title: 'Financial Controller', department: 'Finance', joiningDate: '15/09/2021' }
+      {
+        accessCode: "1234",
+        employeeId: "ARC001",
+        name: "Alexander Sterling",
+        title: "Principal Architect",
+        department: "Technology",
+        joiningDate: "12/01/2022",
+      },
+      {
+        accessCode: "5678",
+        employeeId: "MNG042",
+        name: "Elizabeth Vance",
+        title: "HR Business Partner",
+        department: "Human Resources",
+        joiningDate: "05/03/2023",
+      },
+      {
+        accessCode: "9012",
+        employeeId: "FIN088",
+        name: "Marcus Aurelius",
+        title: "Financial Controller",
+        department: "Finance",
+        joiningDate: "15/09/2021",
+      },
     ];
 
     const demoSlips = [
       {
-        accessCode: '1234',
-        employeeId: 'ARC001',
-        employeeName: 'Alexander Sterling',
-        month: 'March',
+        accessCode: "1234",
+        employeeId: "ARC001",
+        employeeName: "Alexander Sterling",
+        month: "March",
         year: 2026,
         amount: 9450,
-        paymentDate: '01/03/2026',
-        status: 'Processed',
+        paymentDate: "01/03/2026",
+        status: "Processed",
         daysPayable: 30,
-        comments: 'Excellent delivery on Project Phoenix.\nKeep up the high standard of architecture work.',
+        comments:
+          "Excellent delivery on Project Phoenix.\nKeep up the high standard of architecture work.",
         earnings: [
-          { label: 'Basic Salary', val: 7500 },
-          { label: 'House Rent', val: 1500 },
-          { label: 'Transport', val: 500 },
-          { label: 'Performance Bonus', val: 1000 }
+          { label: "Basic Salary", val: 7500 },
+          { label: "House Rent", val: 1500 },
+          { label: "Transport", val: 500 },
+          { label: "Performance Bonus", val: 1000 },
         ],
         deductions: [
-          { label: 'Income Tax', val: 600 },
-          { label: 'Social Security', val: 300 },
-          { label: 'Medical Insurance', val: 150 }
-        ]
+          { label: "Income Tax", val: 600 },
+          { label: "Social Security", val: 300 },
+          { label: "Medical Insurance", val: 150 },
+        ],
       },
       {
-        accessCode: '5678',
-        employeeId: 'MNG042',
-        employeeName: 'Elizabeth Vance',
-        month: 'March',
+        accessCode: "5678",
+        employeeId: "MNG042",
+        employeeName: "Elizabeth Vance",
+        month: "March",
         year: 2026,
         amount: 7200,
-        paymentDate: '01/03/2026',
-        status: 'Processed',
+        paymentDate: "01/03/2026",
+        status: "Processed",
         daysPayable: 30,
-        comments: 'Adjustment for annual leave carried over.',
+        comments: "Adjustment for annual leave carried over.",
         earnings: [
-          { label: 'Basic Salary', val: 6000 },
-          { label: 'House Rent', val: 1000 },
-          { label: 'Transport', val: 500 },
-          { label: 'Performance Bonus', val: 500 }
+          { label: "Basic Salary", val: 6000 },
+          { label: "House Rent", val: 1000 },
+          { label: "Transport", val: 500 },
+          { label: "Performance Bonus", val: 500 },
         ],
         deductions: [
-          { label: 'Income Tax', val: 450 },
-          { label: 'Social Security', val: 250 },
-          { label: 'Medical Insurance', val: 100 }
-        ]
+          { label: "Income Tax", val: 450 },
+          { label: "Social Security", val: 250 },
+          { label: "Medical Insurance", val: 100 },
+        ],
       },
       {
-        accessCode: '9012',
-        employeeId: 'FIN088',
-        employeeName: 'Marcus Aurelius',
-        month: 'March',
+        accessCode: "9012",
+        employeeId: "FIN088",
+        employeeName: "Marcus Aurelius",
+        month: "March",
         year: 2026,
         amount: 8800,
-        paymentDate: '01/03/2026',
-        status: 'Under Review',
+        paymentDate: "01/03/2026",
+        status: "Under Review",
         daysPayable: 30,
-        comments: 'Pending final audit approval for quarterly audit bonus.',
+        comments: "Pending final audit approval for quarterly audit bonus.",
         earnings: [
-          { label: 'Basic Salary', val: 7000 },
-          { label: 'House Rent', val: 1500 },
-          { label: 'Transport', val: 500 },
-          { label: 'Performance Bonus', val: 800 }
+          { label: "Basic Salary", val: 7000 },
+          { label: "House Rent", val: 1500 },
+          { label: "Transport", val: 500 },
+          { label: "Performance Bonus", val: 800 },
         ],
         deductions: [
-          { label: 'Income Tax', val: 600 },
-          { label: 'Social Security', val: 300 },
-          { label: 'Medical Insurance', val: 100 }
-        ]
-      }
+          { label: "Income Tax", val: 600 },
+          { label: "Social Security", val: 300 },
+          { label: "Medical Insurance", val: 100 },
+        ],
+      },
     ];
 
-    localStorage.setItem('payslip_db_employees', JSON.stringify(demoEmployees));
-    localStorage.setItem('payslip_db_slips', JSON.stringify(demoSlips));
-    localStorage.setItem('payslip_db_initialized', 'true');
-    localStorage.setItem('is_demo_mode', 'true');
+    localStorage.setItem("payslip_db_employees", JSON.stringify(demoEmployees));
+    localStorage.setItem("payslip_db_slips", JSON.stringify(demoSlips));
+    localStorage.setItem("payslip_db_initialized", "true");
+    localStorage.setItem("is_demo_mode", "true");
 
     // Instantly launch the portal with the mock/demo sandbox coordinates, bypassing registration and setup forms!
     onComplete({
-      companyName: 'AirSlip Demo',
-      whatsapp: '+44755123456',
-      email: 'admin@demo.com',
-      companySize: '11-50 Members',
-      gasUrl: demoUrl
+      companyName: "AirSlip Demo",
+      whatsapp: "+44755123456",
+      email: "admin@demo.com",
+      companySize: "11-50 Members",
+      gasUrl: demoUrl,
     });
   };
 
   return (
     <div className="min-h-screen bg-[#f9f9ff] text-[#041b3c] font-sans antialiased relative selection:bg-blue-100 selection:text-blue-950 overflow-x-hidden">
-      
       {/* SaaS Ambient Glimmer Effects */}
       <div className="absolute top-0 right-0 w-[45%] h-[600px] bg-gradient-to-bl from-blue-100/40 via-indigo-50/20 to-transparent pointer-events-none -z-10 rounded-bl-[100px]" />
       <div className="absolute top-[20%] left-[-100px] w-[500px] h-[550px] bg-[#e8edff]/50 rounded-full filter blur-[100px] pointer-events-none -z-10" />
 
       {/* Main Content Space */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-5 lg:py-8 xl:py-10 flex flex-col justify-between min-h-screen">
-        
         {/* Navigation Header */}
         <header className="flex flex-row items-center justify-between border-b border-slate-100 pb-5 mb-12 lg:mb-16">
           <div className="flex items-center gap-3">
@@ -590,17 +685,21 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-base font-extrabold text-[#041b3c] tracking-tight">AirSlip</span>
+                <span className="text-base font-extrabold text-[#041b3c] tracking-tight">
+                  AirSlip
+                </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium">Bilingual Workforce Payslip Engine</p>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Workforce Payslip Engine
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                const stepSec = document.getElementById('interactive-steps');
-                if (stepSec) stepSec.scrollIntoView({ behavior: 'smooth' });
+                const stepSec = document.getElementById("interactive-steps");
+                if (stepSec) stepSec.scrollIntoView({ behavior: "smooth" });
               }}
               className="hidden sm:inline-flex px-4 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-all text-xs font-bold text-[#003d9b] shadow-2xs cursor-pointer"
             >
@@ -618,23 +717,37 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
         {/* Hero Area */}
         <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-12 lg:mb-16">
-          
           {/* Left Hero Column */}
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/10 text-blue-800 text-xs font-bold border border-blue-200/40">
-              <Database className="w-3.5 h-3.5 animate-pulse" /> Direct Google Drive Secure Integration
+              <Database className="w-3.5 h-3.5 animate-pulse" /> Direct Google
+              Drive Secure Integration
             </div>
-            
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#041b3c] tracking-tight leading-[1.1]">
-              The Elite Employee Payroll Portal That Works Directly From Your Google Sheets.
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#041b3c] tracking-tight leading-[1.15]">
+              <span className="block text-[#003d9b] mb-2 sm:mb-3">
+                No Emails. No Paper. No Repeat Questions.
+              </span>
+              Every Payslip Generated in Seconds — From Your Google Sheet to
+              Their Phone.
             </h1>
-            
-            <div className="space-y-3">
-              <p className="text-slate-600 text-sm sm:text-base font-semibold leading-relaxed max-w-2xl">
-                Empower your workforce with beautiful, mobile-optimized payslips. Completely secure, private, and automated—giving employees instant clarity on their earnings while keeping your confidential payroll data fully isolated within your original Google ecosystem.
+
+            <div className="space-y-4 text-slate-600 text-sm sm:text-base font-semibold leading-relaxed max-w-2xl">
+              <p>
+                Your employees see full earnings, deductions, and net pay
+                instantly.
               </p>
+              <p>You manage one spreadsheet. They get complete clarity.</p>
+              <p>
+                Your data stays in your Google Drive — always private, always
+                yours.
+              </p>
+            </div>
+
+            <div className="space-y-3 mt-4">
               <p className="text-xs font-bold text-slate-400 separator-dot uppercase tracking-widest flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#003d9b]" /> No servers. No setup fees. No catch.
+                <span className="w-1.5 h-1.5 rounded-full bg-[#003d9b]" /> No
+                servers. No setup fees. No catch.
               </p>
             </div>
 
@@ -642,39 +755,39 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
               <button
                 type="button"
-                onClick={handleOpenNewOnboarding}
-                className="h-12 px-7 bg-[#003d9b] hover:bg-[#002f74] text-white font-extrabold rounded-xl transition-all shadow-md shadow-blue-900/10 hover:shadow-lg active:scale-[0.99] cursor-pointer text-xs uppercase tracking-wider flex items-center justify-center gap-2 group flex-shrink-0"
+                onClick={handleLaunchWithDemoSandbox}
+                className="h-12 px-7 bg-[#003d9b] hover:bg-[#002f74] text-white font-extrabold rounded-xl transition-all shadow-md shadow-blue-900/10 hover:shadow-lg active:scale-[0.99] cursor-pointer text-xs sm:text-[13px] tracking-wide flex items-center justify-center gap-2 border border-transparent flex-shrink-0"
               >
-                <span>Get Started Free</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span>👉 Try Free Demo — See a Payslip in 30 Seconds</span>
               </button>
 
               <button
                 type="button"
-                onClick={handleLaunchWithDemoSandbox}
+                onClick={handleOpenNewOnboarding}
                 className="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/60 font-bold rounded-xl transition-all cursor-pointer text-xs flex items-center justify-center gap-1.5 active:scale-[0.99]"
               >
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>View Demo</span>
+                <span>Create Custom Workspace</span>
+                <ArrowRight className="w-4 h-4 opacity-50" />
               </button>
             </div>
 
-            <p className="text-[11px] text-slate-500 font-semibold italic flex items-center gap-1.5">
-              <span>🏷️</span>
-              <span className="font-bold text-[#003d9b]">Early Access</span>
-              <span>— Free for founding teams</span>
-            </p>
-
             {/* Quick trust metrics */}
-            <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] text-slate-500 font-medium pt-2 border-t border-slate-100">
-              <span className="flex items-center gap-1 font-bold">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Done-For-You Spreadsheet Template
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6 text-[11px] text-slate-500 font-medium pt-4 mt-2 border-t border-slate-100">
+              <span className="flex items-center gap-1.5 font-bold">
+                <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />{" "}
+                No servers. No setup fees.
               </span>
-              <span className="flex items-center gap-1 font-bold">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Absolute Zero Software Maintenance Fees
+              <span className="flex items-center gap-1.5 font-bold">
+                <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />{" "}
+                English & Arabic
               </span>
-              <span className="flex items-center gap-1 font-bold">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Bilingual English & Space-Optimized Arabic Layouts
+              <span className="flex items-center gap-1.5 font-bold">
+                <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />{" "}
+                Works offline as PWA
+              </span>
+              <span className="flex items-center gap-1.5 font-bold">
+                <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />{" "}
+                Your data stays in your Google Drive — we can't see it
               </span>
             </div>
           </div>
@@ -683,7 +796,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           <div className="lg:col-span-5 flex items-center justify-center">
             <div className="w-full max-w-sm bg-white rounded-2xl p-6 border border-slate-200/80 shadow-lg relative overflow-hidden space-y-5">
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#e8edff] rounded-full filter blur-xl opacity-70 pointer-events-none" />
-              
+
               {/* Card top */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
@@ -691,36 +804,57 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     AS
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-[#041b3c]">AirSlip Portal Demo</h3>
-                    <p className="text-[9px] text-[#565f6a] uppercase tracking-wider font-mono">STAFF DIGITAL WORKSPACE</p>
+                    <h3 className="text-xs font-bold text-[#041b3c]">
+                      AirSlip Portal Demo
+                    </h3>
+                    <p className="text-[9px] text-[#565f6a] uppercase tracking-wider font-mono">
+                      STAFF DIGITAL WORKSPACE
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 py-0.5 px-2 bg-emerald-50 border border-emerald-100 rounded-full text-[9px] font-bold text-emerald-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+                  LIVE
                 </div>
               </div>
 
               {/* Sample Salary Slip Figure */}
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">NET SALARY RECEIVED (EN/AR)</span>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
+                  NET SALARY RECEIVED (EN/AR)
+                </span>
                 <div className="flex items-baseline justify-between">
-                  <p className="text-2xl font-extrabold text-[#003d9b] tracking-tight font-mono">$4,850.00</p>
-                  <span className="text-[10px] text-emerald-700 font-bold bg-[#edf0ff] px-1.5 py-0.5 rounded">Processed</span>
+                  <p className="text-2xl font-extrabold text-[#003d9b] tracking-tight font-mono">
+                    $4,850.00
+                  </p>
+                  <span className="text-[10px] text-emerald-700 font-bold bg-[#edf0ff] px-1.5 py-0.5 rounded">
+                    Processed
+                  </span>
                 </div>
               </div>
 
               {/* Mini List */}
               <div className="space-y-1.5 pt-1 text-[11px]">
                 <div className="px-2.5 py-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between">
-                  <span className="text-[#565f6a]">Base Salary / الراتب الأساسي</span>
-                  <span className="font-bold text-slate-800 font-mono">$3,200.00</span>
+                  <span className="text-[#565f6a]">
+                    Base Salary / الراتب الأساسي
+                  </span>
+                  <span className="font-bold text-slate-800 font-mono">
+                    $3,200.00
+                  </span>
                 </div>
                 <div className="px-2.5 py-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between">
-                  <span className="text-[#565f6a]">Allowances / البدلات والمكافآت</span>
-                  <span className="font-bold text-slate-800 font-mono">$1,800.00</span>
+                  <span className="text-[#565f6a]">
+                    Allowances / البدلات والمكافآت
+                  </span>
+                  <span className="font-bold text-slate-800 font-mono">
+                    $1,800.00
+                  </span>
                 </div>
                 <div className="px-2.5 py-2 rounded-lg bg-red-50 border border-red-100/60 flex items-center justify-between text-red-900">
-                  <span className="text-red-700/85">Deductions / الاستقطاعات والضرائب</span>
+                  <span className="text-red-700/85">
+                    Deductions / الاستقطاعات والضرائب
+                  </span>
                   <span className="font-bold font-mono">-$150.00</span>
                 </div>
               </div>
@@ -734,32 +868,191 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           </div>
         </main>
 
+        {/* Problem vs Solution Section */}
+        <section className="bg-slate-50/50 rounded-3xl border border-slate-200/60 p-6 md:p-8 lg:p-12 shadow-sm mb-12 lg:mb-16 scroll-mt-6">
+          <div className="text-center max-w-xl mx-auto space-y-3 mb-10">
+            <h2 className="text-2xl md:text-3xl font-black text-[#041b3c] tracking-tight">
+              The Post-Payday Problem Every HR Manager Knows
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            {/* Without AirSlip */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm relative flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100/80 border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm text-sm">
+                    ⚠️
+                  </div>
+                  <div>
+                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                      The Old Way
+                    </h3>
+                    <p className="text-base font-extrabold text-slate-800 tracking-tight">
+                      Without AirSlip
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 space-y-2 bg-white flex-1">
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-slate-50/50 text-slate-600 transition-colors hover:bg-slate-50">
+                  <span className="opacity-40 text-xs mt-0.5">❌</span>
+                  <span className="text-sm font-medium leading-snug">
+                    Export PDFs one by one
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-slate-50/50 text-slate-600 transition-colors hover:bg-slate-50">
+                  <span className="opacity-40 text-xs mt-0.5">❌</span>
+                  <span className="text-sm font-medium leading-snug">
+                    Attach to emails, send individually
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-slate-50/50 text-slate-600 transition-colors hover:bg-slate-50">
+                  <span className="opacity-40 text-xs mt-0.5">❌</span>
+                  <span className="text-sm font-medium leading-snug">
+                    "Can you resend my payslip?"
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-slate-50/50 text-slate-600 transition-colors hover:bg-slate-50">
+                  <span className="opacity-40 text-xs mt-0.5">❌</span>
+                  <span className="text-sm font-medium leading-snug">
+                    "I don't understand this deduction"
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-slate-50/50 text-slate-600 transition-colors hover:bg-slate-50">
+                  <span className="opacity-40 text-xs mt-0.5">❌</span>
+                  <span className="text-sm font-medium leading-snug">
+                    3+ hours lost answering the same questions
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-200/80 flex items-start gap-3 bg-red-50/30 text-red-900 mt-2">
+                  <span className="opacity-60 text-xs mt-0.5 text-red-500">
+                    ❌
+                  </span>
+                  <span className="text-sm font-bold leading-snug">
+                    Employees frustrated, HR overwhelmed
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* With AirSlip */}
+            <div className="bg-white rounded-2xl border border-blue-200/60 shadow-xl shadow-blue-900/5 relative flex flex-col overflow-hidden transform md:scale-[1.02] transition-transform duration-300 z-10">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-[#e8edff] rounded-full filter blur-3xl opacity-70 pointer-events-none" />
+              <div className="p-6 border-b border-blue-100/50 bg-[#fafcff] relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#f1f3ff] border border-blue-100 flex items-center justify-center text-[#003d9b] shadow-sm font-bold text-xs">
+                    AS
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-[10px] font-bold text-[#003d9b]/70 uppercase tracking-widest font-mono">
+                        The New Way
+                      </h3>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                        <span className="w-1 h-1 rounded-full bg-emerald-500 mr-1 animate-pulse" />{" "}
+                        Live
+                      </span>
+                    </div>
+                    <p className="text-base font-extrabold text-[#041b3c] tracking-tight mt-0.5">
+                      With AirSlip
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 space-y-2 bg-white relative z-10 flex-1">
+                <div className="px-3.5 py-3 rounded-xl border border-blue-100 border-l-2 border-l-blue-500 flex items-start gap-3 bg-blue-50/30 text-[#041b3c]">
+                  <span className="text-blue-600 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span className="text-sm font-bold leading-snug">
+                    One Google Sheet → all payslips generated
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-emerald-50 border-l-2 border-l-emerald-400 flex items-start gap-3 bg-emerald-50/30 text-emerald-950">
+                  <span className="text-emerald-600 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span className="text-sm font-bold leading-snug">
+                    Employees access instantly on their phone
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-white text-slate-700 hover:bg-slate-50 transition-colors">
+                  <span className="text-emerald-500 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span className="text-sm font-medium leading-snug">
+                    Full history available 24/7
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-white text-slate-700 hover:bg-slate-50 transition-colors">
+                  <span className="text-emerald-500 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span className="text-sm font-medium leading-snug">
+                    Detailed breakdown: earnings, deductions, net pay
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-slate-100 flex items-start gap-3 bg-white text-slate-700 hover:bg-slate-50 transition-colors">
+                  <span className="text-emerald-500 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span className="text-sm font-medium leading-snug">
+                    HR focuses on real work
+                  </span>
+                </div>
+                <div className="px-3.5 py-3 rounded-xl border border-blue-100 flex items-start gap-3 bg-blue-50/50 text-[#003d9b] mt-2 shadow-sm">
+                  <span className="text-[#003d9b] text-base font-bold mt-px">
+                    ⭐
+                  </span>
+                  <span className="text-[15px] font-black leading-snug tracking-tight">
+                    Transparent payroll = happier team
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Step-by-Step Interactive Guide: NO manual apps script edit */}
-        <section id="interactive-steps" className="bg-white rounded-2xl border border-slate-200/75 p-6 md:p-8 lg:p-12 shadow-xs mb-12 lg:mb-16 space-y-8 lg:space-y-12 scroll-mt-6">
+
+        <section
+          id="interactive-steps"
+          className="bg-white rounded-2xl border border-slate-200/75 p-6 md:p-8 lg:p-12 shadow-xs mb-12 lg:mb-16 space-y-8 lg:space-y-12 scroll-mt-6"
+        >
           <div className="text-center max-w-xl mx-auto space-y-3">
-            <span className="text-[9px] uppercase font-bold text-[#003d9b] bg-[#e8edff] px-3.5 py-1 rounded-full border border-blue-100 tracking-wider">Zero-Code SaaS Deployment</span>
-            <h2 className="text-xl md:text-3xl font-black text-[#041b3c] tracking-tight">Launch Your Custom Portal in Under 3 Minutes</h2>
+            <span className="text-[9px] uppercase font-bold text-[#003d9b] bg-[#e8edff] px-3.5 py-1 rounded-full border border-blue-100 tracking-wider">
+              Zero-Code SaaS Deployment
+            </span>
+            <h2 className="text-xl md:text-3xl font-black text-[#041b3c] tracking-tight">
+              Launch Your Custom Portal in Under 3 Minutes
+            </h2>
             <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
-              Ditch expensive legacy databases. AirSlip syncs directly onto your existing Google Spreadsheet rows. No servers, no setup costs — just pure automated payroll convenience.
+              Ditch expensive legacy databases. AirSlip syncs directly onto your
+              existing Google Spreadsheet rows. No servers, no setup costs —
+              just pure automated payroll convenience.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-            
             {/* Step 1 */}
             <div className="p-5 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
                 <div className="w-8 h-8 rounded-full bg-[#f1f3ff] text-[#003d9b] font-bold text-xs flex items-center justify-center">
                   1
                 </div>
-                <h3 className="font-extrabold text-sm text-[#041b3c]">Claim Your Premium Template</h3>
+                <h3 className="font-extrabold text-sm text-[#041b3c]">
+                  Claim Your Premium Template
+                </h3>
                 <p className="text-xs text-[#565f6a] leading-relaxed">
-                  Open our master spreadsheet ledger and click <strong className="text-slate-800">Use Template</strong> to safely duplicate it directly into your Google Drive container.
+                  Open our master spreadsheet ledger and click{" "}
+                  <strong className="text-slate-800">Use Template</strong> to
+                  safely duplicate it directly into your Google Drive container.
                 </p>
               </div>
-              <a 
-                href="https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview" 
-                target="_blank" 
+              <a
+                href="https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-[#003d9b] font-bold hover:underline"
               >
@@ -774,12 +1067,24 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <div className="w-8 h-8 rounded-full bg-[#f1f3ff] text-[#003d9b] font-bold text-xs flex items-center justify-center">
                   2
                 </div>
-                <h3 className="font-extrabold text-sm text-[#041b3c]">Instant One-Click Deploy</h3>
+                <h3 className="font-extrabold text-sm text-[#041b3c]">
+                  Instant One-Click Deploy
+                </h3>
                 <p className="text-xs text-[#565f6a] leading-relaxed">
-                  Inside your spreadsheet, navigate to <strong className="text-slate-800">Extensions &gt; Apps Script</strong>. Simply press <strong className="text-[#003d9b]">Deploy &gt; New Deployment</strong> and select the Web App type.
+                  Inside your spreadsheet, navigate to{" "}
+                  <strong className="text-slate-800">
+                    Extensions &gt; Apps Script
+                  </strong>
+                  . Simply press{" "}
+                  <strong className="text-[#003d9b]">
+                    Deploy &gt; New Deployment
+                  </strong>{" "}
+                  and select the Web App type.
                 </p>
               </div>
-              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg w-max tracking-wide">Automatic Syncing</span>
+              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg w-max tracking-wide">
+                Automatic Syncing
+              </span>
             </div>
 
             {/* Step 3 */}
@@ -788,9 +1093,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 font-bold text-xs flex items-center justify-center">
                   3
                 </div>
-                <h3 className="font-extrabold text-sm text-[#041b3c]">Activate Your Custom URL</h3>
+                <h3 className="font-extrabold text-sm text-[#041b3c]">
+                  Activate Your Custom URL
+                </h3>
                 <p className="text-xs text-[#565f6a] leading-relaxed">
-                  Choose Executed as <strong className="text-slate-800">"Me"</strong> and Access as <strong className="text-slate-800">"Anyone"</strong>. Click deploy and paste your Web App URL here to instantly start!
+                  Choose Executed as{" "}
+                  <strong className="text-slate-800">"Me"</strong> and Access as{" "}
+                  <strong className="text-slate-800">"Anyone"</strong>. Click
+                  deploy and paste your Web App URL here to instantly start!
                 </p>
               </div>
               <button
@@ -802,48 +1112,346 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
-
           </div>
 
           {/* Quick Notice */}
           <div className="bg-[#edf0ff] p-4 rounded-xl border border-blue-100 flex items-start gap-3">
             <ShieldCheck className="w-5 h-5 text-[#003d9b] flex-shrink-0 mt-0.5" />
             <div className="text-left text-xs text-slate-700 leading-relaxed">
-              <strong className="text-[#003d9b] font-bold">Absolute Security & Direct Sync:</strong> Everything operates server-to-server. The employee access queries hit your deployed Google script directly, meaning your confidential organizational salary numbers never touch a third-party server database.
+              <strong className="text-[#003d9b] font-bold">
+                Absolute Security & Direct Sync:
+              </strong>{" "}
+              Everything operates server-to-server. The employee access queries
+              hit your deployed Google script directly, meaning your
+              confidential organizational salary numbers never touch a
+              third-party server database.
             </div>
           </div>
         </section>
 
-        {/* Feature Grid Details */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-16 lg:mb-24">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-3xs space-y-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-[#003d9b]">
-              <Settings className="w-5 h-5" />
-            </div>
-            <h3 className="font-extrabold text-base text-slate-900">Elite Operations Control Hub</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Take complete command of your payroll operations. Establish secure administrator credentials, monitor real-time sync status, override employee roster directories, and inspect instant duplicate/irregularity audits without database clutter.
-            </p>
+        {/* Features Section */}
+        <section className="mb-16 lg:mb-24 space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-3">
+            <h2 className="text-2xl md:text-3xl font-black text-[#041b3c] tracking-tight">
+              Everything Your Team Needs
+            </h2>
           </div>
 
-          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xs text-white space-y-3">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-[#c4d2ff]">
-              <UserCheck className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#003d9b] text-xl">
+                📱
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
+                  Mobile-First Payslips
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Beautiful, detailed breakdowns on any phone. iOS, Android, any
+                  browser.
+                </p>
+              </div>
             </div>
-            <h3 className="font-extrabold text-base text-white">Delightful Bilingual Workforce Portal</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Excite your team with an elegant digital home. Staff can securely sign in to view high-fidelity bilingual English/Arabic layouts, explore dynamic visual earnings graphs, review historical payroll records, and print pixel-perfect PDF payslips instantly.
-            </p>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#003d9b] text-xl">
+                🌐
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
+                  EN/AR Options
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Full Arabic and English layouts. RTL-optimized.
+                  Space-efficient.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#003d9b] text-xl">
+                📄
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
+                  Print-Ready PDFs
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  One tap to download professional payslip PDFs.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#003d9b] text-xl">
+                📊
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
+                  Full Pay History
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Current month + all historical records. Always available.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl">
+                🔒
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
+                  Complete Privacy
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Your data stays in your Google Sheet. We cannot see it. No one
+                  can.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 text-xl">
+                ⚡
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
+                  Offline Access
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Install as PWA. Works without internet. Syncs when connected.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Security Section */}
+        <section className="bg-slate-900 rounded-3xl p-8 md:p-12 lg:p-16 mb-16 lg:mb-24 text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full filter blur-3xl" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white leading-tight">
+                We Literally Cannot See Your Data
+              </h2>
+              <div className="space-y-4 text-slate-300 text-base md:text-lg font-medium">
+                <p>Your payroll data lives in YOUR Google Sheet.</p>
+                <p>We provide the window. You own the house.</p>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 md:p-8 space-y-5">
+              <div className="flex items-start gap-3.5">
+                <span className="mt-0.5 text-emerald-400">✅</span>
+                <div>
+                  <h4 className="font-bold text-slate-100">
+                    Zero-Data Architecture
+                  </h4>
+                  <p className="text-slate-400 text-sm mt-0.5 font-medium">
+                    We have zero access to your spreadsheet
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3.5">
+                <span className="mt-0.5 text-emerald-400">✅</span>
+                <div>
+                  <h4 className="font-bold text-slate-100">
+                    Encrypted on-device sessions
+                  </h4>
+                  <p className="text-slate-400 text-sm mt-0.5 font-medium">
+                    No data stored on our servers
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3.5">
+                <span className="mt-0.5 text-emerald-400">✅</span>
+                <div>
+                  <h4 className="font-bold text-slate-100">
+                    Row-level isolation
+                  </h4>
+                  <p className="text-slate-400 text-sm mt-0.5 font-medium">
+                    Each employee sees only their own data
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3.5">
+                <span className="mt-0.5 text-emerald-400">✅</span>
+                <div>
+                  <h4 className="font-bold text-slate-100">
+                    Google-grade security
+                  </h4>
+                  <p className="text-slate-400 text-sm mt-0.5 font-medium">
+                    Protected by your existing Google Workspace
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Social Proof */}
+        <section className="mb-16 lg:mb-24 text-center max-w-5xl mx-auto space-y-10">
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-black text-[#041b3c] tracking-tight">
+              Trusted by Teams Who Value Transparency
+            </h2>
+            <div className="inline-flex items-center gap-2 bg-[#f0fdf4] text-emerald-800 font-bold px-4 py-1.5 rounded-full border border-emerald-200 text-sm shadow-sm space-x-1">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <span>600+ teams active</span>
+            </div>
+          </div>
+
+          <div
+            className="flex overflow-x-auto snap-x snap-mandatory gap-6 items-stretch pt-4 pb-8 -mx-4 px-4 sm:-mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+            style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
+          >
+            {[
+              {
+                text: "AirSlip cut our post-payday HR queries by 90%. Our employees love checking their payslips on their phones.",
+                initial: "M",
+                first: "M",
+                firstBlur: "uhummad",
+                last: "A",
+                lastBlur: "li",
+                title: "HR Manager",
+              },
+              {
+                text: "I used to spend 3 days a month emailing payslips. Now it takes me literally 2 minutes. Life changing.",
+                initial: "S",
+                first: "S",
+                firstBlur: "arah",
+                last: "J",
+                lastBlur: "ones",
+                title: "Operations Lead",
+              },
+              {
+                text: "Our staff stopped asking for historical payslips for bank loans. They just download PDFs directly from their phones.",
+                initial: "A",
+                first: "A",
+                firstBlur: "hmed",
+                last: "K",
+                lastBlur: "halid",
+                title: "Payroll Director",
+              },
+              {
+                text: "Payday used to mean a flood of WhatsApp messages. Now everyone just checks the app. Complete peace of mind.",
+                initial: "F",
+                first: "F",
+                firstBlur: "atima",
+                last: "Z",
+                lastBlur: "ahra",
+                title: "HR Executive",
+              },
+              {
+                text: "The team is so much happier. They feel valued having a premium app to see their salaries instantly.",
+                initial: "D",
+                first: "D",
+                firstBlur: "avid",
+                last: "C",
+                lastBlur: "hen",
+                title: "General Manager",
+              },
+              {
+                text: "No more printing, no more lost papers. The amount of time and paper we save every month is unbelievable.",
+                initial: "L",
+                first: "L",
+                firstBlur: "ayla",
+                last: "M",
+                lastBlur: "ahmoud",
+                title: "Admin Supervisor",
+              },
+              {
+                text: "Employees love that they can switch between English and Arabic easily. Everyone understands their deductions clearly now.",
+                initial: "O",
+                first: "O",
+                firstBlur: "mar",
+                last: "T",
+                lastBlur: "ariq",
+                title: "Financial Controller",
+              },
+              {
+                text: "The easiest rollout we've ever done. The team just scanned a code and stopped asking HR for salary details.",
+                initial: "R",
+                first: "R",
+                firstBlur: "achel",
+                last: "K",
+                lastBlur: "ennedy",
+                title: "People Ops",
+              },
+            ].map((review, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-2xl border border-slate-200/75 p-6 text-left shadow-sm flex flex-col justify-between min-w-[300px] sm:min-w-[340px] snap-center"
+              >
+                <div className="space-y-4">
+                  <div className="flex gap-1 text-amber-400 text-lg">★★★★★</div>
+                  <p className="text-slate-600 font-medium leading-relaxed italic text-[14px]">
+                    "{review.text}"
+                  </p>
+                </div>
+                <div className="mt-6 pt-5 border-t border-slate-100 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-sm">
+                    {review.initial}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 text-sm flex items-center gap-1">
+                      {review.first}
+                      <span className="text-slate-300 blur-[3px] select-none">
+                        {review.firstBlur}
+                      </span>{" "}
+                      {review.last}
+                      <span className="text-slate-300 blur-[3px] select-none">
+                        {review.lastBlur}
+                      </span>
+                    </p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {review.title}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="max-w-2xl mx-auto pt-4">
+            <div className="bg-gradient-to-br from-[#003d9b] to-[#041b3c] rounded-2xl p-8 text-left shadow-lg text-white flex flex-col sm:flex-row justify-between items-center sm:items-start relative overflow-hidden gap-8">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full filter blur-xl transform translate-x-1/3 -translate-y-1/3" />
+              <div className="space-y-3 relative z-10 flex-1 text-center sm:text-left">
+                <div className="inline-flex items-center justify-center w-10 h-10 bg-white/10 rounded-xl mb-1 text-xl border border-white/20">
+                  🚀
+                </div>
+                <h3 className="font-black text-xl text-white">Early Access</h3>
+                <p className="text-blue-100 font-medium leading-relaxed text-[15px]">
+                  Join companies already simplifying their payroll transparency
+                  today. Set up your zero-code portal in minutes.
+                </p>
+              </div>
+              <div className="relative z-10 w-full sm:w-auto flex-shrink-0 flex items-center sm:h-full sm:pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("interactive-steps");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="bg-white text-[#003d9b] font-black w-full sm:w-auto px-8 py-3.5 rounded-xl hover:bg-slate-50 active:scale-[0.98] transition-all shadow-md text-sm uppercase tracking-wider"
+                >
+                  Create Custom Workspace
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Footer */}
         <footer className="text-center py-6 border-t border-slate-200/50 space-y-2">
           <p className="text-[11px] text-slate-400">
-            AirSlip Enterprise Portal &copy; 2026. All rights reserved. Data ownership held with Google Tenant.
+            AirSlip Enterprise Portal &copy; 2026. All rights reserved. Data
+            ownership held with Google Tenant.
           </p>
         </footer>
-
       </div>
 
       {/* MODAL CONFIGURATION PORTAL FORM */}
@@ -865,7 +1473,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
             {/* Container for Centering */}
             <div className="flex min-h-screen items-center justify-center p-3 sm:p-6 lg:p-8 text-center z-50 relative pointer-events-none">
-
               {/* Form Card Body */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -901,40 +1508,55 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         </button>
                       )}
                     </div>
-                    <h3 className="text-base sm:text-lg font-bold text-[#041b3c] tracking-tight">Onboard Your Company Portal</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-[#041b3c] tracking-tight">
+                      Onboard Your Company Portal
+                    </h3>
                   </div>
 
                   {/* Step Bar Progress Indicator */}
                   <div className="mt-4 flex items-center justify-between gap-2">
                     {[
-                      { step: 1, label: 'Workspace' },
-                      { step: 2, label: 'Template' },
-                      { step: 3, label: 'Deploy app' },
-                      { step: 4, label: 'Connect & test' }
+                      { step: 1, label: "Workspace" },
+                      { step: 2, label: "Template" },
+                      { step: 3, label: "Deploy app" },
+                      { step: 4, label: "Connect & test" },
                     ].map((s) => {
                       const isActive = onboardingWizardStep === s.step;
                       const isCompleted = onboardingWizardStep > s.step;
                       return (
-                         <div key={s.step} className="flex-1 flex flex-col gap-1.5">
-                           <div className="h-1.5 w-full rounded-full transition-all duration-300 overflow-hidden bg-slate-100">
-                             <div 
-                               className={`h-full transition-all duration-300 ${
-                                 isCompleted ? 'bg-emerald-500 w-full' : isActive ? 'bg-[#003d9b] w-full' : 'bg-transparent w-0'
-                               }`} 
-                             />
-                           </div>
-                           <span className={`text-[9px] font-bold text-center tracking-tight truncate ${
-                             isActive ? 'text-[#003d9b]' : isCompleted ? 'text-emerald-650' : 'text-slate-400'
-                           }`}>
-                             {s.label}
-                           </span>
-                         </div>
+                        <div
+                          key={s.step}
+                          className="flex-1 flex flex-col gap-1.5"
+                        >
+                          <div className="h-1.5 w-full rounded-full transition-all duration-300 overflow-hidden bg-slate-100">
+                            <div
+                              className={`h-full transition-all duration-300 ${
+                                isCompleted
+                                  ? "bg-emerald-500 w-full"
+                                  : isActive
+                                    ? "bg-[#003d9b] w-full"
+                                    : "bg-transparent w-0"
+                              }`}
+                            />
+                          </div>
+                          <span
+                            className={`text-[9px] font-bold text-center tracking-tight truncate ${
+                              isActive
+                                ? "text-[#003d9b]"
+                                : isCompleted
+                                  ? "text-emerald-650"
+                                  : "text-slate-400"
+                            }`}
+                          >
+                            {s.label}
+                          </span>
+                        </div>
                       );
                     })}
                   </div>
                 </div>
 
-                <form 
+                <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     if (onboardingWizardStep < 4) {
@@ -942,90 +1564,113 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     } else {
                       handleSubmit(e);
                     }
-                  }} 
+                  }}
                   className="flex flex-col flex-1 overflow-hidden"
                 >
                   {/* Scrollable Form Body */}
                   <div className="p-5 md:p-7 lg:p-8 space-y-5 overflow-y-auto flex-1 max-h-[60vh] sm:max-h-[66vh] lg:max-h-[72vh] xl:max-h-[76vh] hide-scrollbar">
-                    
                     {onboardingWizardStep === 1 && (
                       <div className="space-y-4 animate-in fade-in duration-200">
                         <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100/60 text-left text-[11px] text-[#003d9b] font-medium leading-relaxed">
-                          ⚡ Let's configure your company details to prepare your bilingual payslip portal directory.
+                          ⚡ Let's configure your company details to prepare
+                          your payslip portal directory.
                         </div>
 
                         {/* Company Name */}
                         <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Name</label>
-                          <input 
-                            type="text" 
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Company Name
+                          </label>
+                          <input
+                            type="text"
                             placeholder="e.g. Orion Labs Ltd"
                             value={companyName}
                             onChange={(e) => {
                               setCompanyName(e.target.value);
                               if (validationErrors.companyName) {
-                                setValidationErrors(prev => ({ ...prev, companyName: '' }));
+                                setValidationErrors((prev) => ({
+                                  ...prev,
+                                  companyName: "",
+                                }));
                               }
                             }}
                             required
                             disabled={submitting}
-                            className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.companyName ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
+                            className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.companyName ? "border-red-500 ring-2 ring-red-100" : "border-[#c3c6d6] hover:border-[#737685]"} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
                           />
                           {validationErrors.companyName && (
-                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.companyName}</p>
+                            <p className="text-[10px] text-red-500 font-bold">
+                              {validationErrors.companyName}
+                            </p>
                           )}
                         </div>
 
                         {/* Company Size */}
                         <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Size</label>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Company Size
+                          </label>
                           <select
                             value={companySize}
                             onChange={(e) => {
                               setCompanySize(e.target.value);
                               if (validationErrors.companySize) {
-                                setValidationErrors(prev => ({ ...prev, companySize: '' }));
+                                setValidationErrors((prev) => ({
+                                  ...prev,
+                                  companySize: "",
+                                }));
                               }
                             }}
                             required
                             disabled={submitting}
-                            className={`w-full h-10 px-3 bg-slate-50 border ${validationErrors.companySize ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c] cursor-pointer`}
+                            className={`w-full h-10 px-3 bg-slate-50 border ${validationErrors.companySize ? "border-red-500 ring-2 ring-red-100" : "border-[#c3c6d6] hover:border-[#737685]"} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c] cursor-pointer`}
                           >
                             <option value="">Select Company Size...</option>
                             <option value="0-10 Members">0-10 Members</option>
                             <option value="11-50 Members">11-50 Members</option>
-                            <option value="51-200 Members">51-200 Members</option>
+                            <option value="51-200 Members">
+                              51-200 Members
+                            </option>
                             <option value="400+ Members">400+ Members</option>
                           </select>
                           {validationErrors.companySize && (
-                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.companySize}</p>
+                            <p className="text-[10px] text-red-500 font-bold">
+                              {validationErrors.companySize}
+                            </p>
                           )}
                         </div>
 
                         {/* Admin Corp Email */}
                         <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Admin Corp Email</label>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Admin Corp Email
+                          </label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5">
                               <Mail className="w-3.5 h-3.5" />
                             </span>
-                            <input 
-                              type="email" 
+                            <input
+                              type="email"
                               placeholder="e.g. hr@airslipportal.com"
                               value={email}
                               onChange={(e) => {
                                 setEmail(e.target.value);
                                 if (validationErrors.email) {
-                                  setValidationErrors(prev => ({ ...prev, email: '' }));
+                                  setValidationErrors((prev) => ({
+                                    ...prev,
+                                    email: "",
+                                  }));
                                 }
                               }}
                               required
                               disabled={submitting}
-                              className={`w-full h-10 pl-9 pr-3.5 bg-slate-50 border ${validationErrors.email ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
+                              className={`w-full h-10 pl-9 pr-3.5 bg-slate-50 border ${validationErrors.email ? "border-red-500 ring-2 ring-red-100" : "border-[#c3c6d6] hover:border-[#737685]"} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
                             />
                           </div>
                           {validationErrors.email && (
-                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.email}</p>
+                            <p className="text-[10px] text-red-500 font-bold">
+                              {validationErrors.email}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -1034,9 +1679,14 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     {onboardingWizardStep === 2 && (
                       <div className="space-y-4 animate-in fade-in duration-200">
                         <div className="p-3.5 bg-indigo-50/50 rounded-xl border border-indigo-100 text-left space-y-2">
-                          <h4 className="text-[11px] font-bold text-[#003d9b] uppercase tracking-wider">Step 2: Copy the Spreadsheet Ledger Template</h4>
+                          <h4 className="text-[11px] font-bold text-[#003d9b] uppercase tracking-wider">
+                            Step 2: Copy the Spreadsheet Ledger Template
+                          </h4>
                           <p className="text-[11px] text-slate-600 font-semibold leading-relaxed">
-                            AirSlip coordinates with a structured Google Sheets spreadsheet to safely store and recall payslip details. Open the link below and save a template clone to your Drive folder.
+                            AirSlip coordinates with a structured Google Sheets
+                            spreadsheet to safely store and recall payslip
+                            details. Open the link below and save a template
+                            clone to your Drive folder.
                           </p>
                         </div>
 
@@ -1045,20 +1695,29 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                             <Database className="w-10 h-10 text-[#003d9b] animate-bounce" />
                           </div>
                           <div>
-                            <p className="text-[12px] font-extrabold text-[#041b3c]">Master Spreadsheet Template</p>
-                            <p className="text-[10px] text-slate-400 font-bold">Instantly accessible, free, and bilingual</p>
+                            <p className="text-[12px] font-extrabold text-[#041b3c]">
+                              Master Spreadsheet Template
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-bold">
+                              Instantly accessible and free
+                            </p>
                           </div>
-                          <a 
-                            href="https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
+                          <a
+                            href="https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex h-11 px-5 bg-[#003d9b] hover:bg-[#002f74] text-white rounded-xl text-xs font-bold items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                           >
                             <span>Open Google Sheet Template</span>
                             <ExternalLink className="w-4 h-4 text-white" />
                           </a>
                           <p className="text-[10px] text-slate-500 font-semibold italic">
-                            💡 Tip: Click the <strong className="text-[#003d9b]">"Use Template"</strong> button in the top right corner of the Google Sheets page to copy it to your personal Drive.
+                            💡 Tip: Click the{" "}
+                            <strong className="text-[#003d9b]">
+                              "Use Template"
+                            </strong>{" "}
+                            button in the top right corner of the Google Sheets
+                            page to copy it to your personal Drive.
                           </p>
                         </div>
                       </div>
@@ -1067,20 +1726,60 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     {onboardingWizardStep === 3 && (
                       <div className="space-y-4 animate-in fade-in duration-200">
                         <div className="p-3.5 bg-indigo-50/50 rounded-xl border border-indigo-100 text-left space-y-2">
-                          <h4 className="text-[11px] font-bold text-[#003d9b] uppercase tracking-wider">Step 3: Deploy Interactive Apps Script Web App</h4>
+                          <h4 className="text-[11px] font-bold text-[#003d9b] uppercase tracking-wider">
+                            Step 3: Deploy Interactive Apps Script Web App
+                          </h4>
                           <p className="text-[11px] text-slate-600 font-semibold leading-relaxed font-sans">
-                            Each employee queries their specific data safely through your custom Google Apps Script Web App without exposing spreadsheet password links.
+                            Each employee queries their specific data safely
+                            through your custom Google Apps Script Web App
+                            without exposing spreadsheet password links.
                           </p>
                         </div>
 
                         <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-left space-y-2.5">
-                          <p className="text-[11px] font-bold text-[#041b3c] uppercase tracking-wider">Deployment Instructions:</p>
+                          <p className="text-[11px] font-bold text-[#041b3c] uppercase tracking-wider">
+                            Deployment Instructions:
+                          </p>
                           <ol className="list-decimal pl-4 text-[11px] font-semibold text-slate-550 space-y-2 leading-relaxed">
-                            <li>Inside your copied Google Sheet, click <strong className="text-[#041b3c]">Extensions &gt; Apps Script</strong> at the top.</li>
-                            <li>At the upper right of the Apps Script page, click <strong className="text-[#003d9b]">Deploy &gt; New Deployment</strong>.</li>
-                            <li>Click the gear/settings icon and select <strong className="text-slate-800">Web App</strong> type.</li>
-                            <li>Set "Execute as" to <strong className="text-slate-900">"Me"</strong> and "Who has access" to <strong className="text-slate-900">"Anyone"</strong>.</li>
-                            <li>Press <strong className="text-[#003d9b]">Deploy</strong>, authorize the Google permissions modal, and <strong className="text-[#003d9b]">Copy the Web App URL</strong>!</li>
+                            <li>
+                              Inside your copied Google Sheet, click{" "}
+                              <strong className="text-[#041b3c]">
+                                Extensions &gt; Apps Script
+                              </strong>{" "}
+                              at the top.
+                            </li>
+                            <li>
+                              At the upper right of the Apps Script page, click{" "}
+                              <strong className="text-[#003d9b]">
+                                Deploy &gt; New Deployment
+                              </strong>
+                              .
+                            </li>
+                            <li>
+                              Click the gear/settings icon and select{" "}
+                              <strong className="text-slate-800">
+                                Web App
+                              </strong>{" "}
+                              type.
+                            </li>
+                            <li>
+                              Set "Execute as" to{" "}
+                              <strong className="text-slate-900">"Me"</strong>{" "}
+                              and "Who has access" to{" "}
+                              <strong className="text-slate-900">
+                                "Anyone"
+                              </strong>
+                              .
+                            </li>
+                            <li>
+                              Press{" "}
+                              <strong className="text-[#003d9b]">Deploy</strong>
+                              , authorize the Google permissions modal, and{" "}
+                              <strong className="text-[#003d9b]">
+                                Copy the Web App URL
+                              </strong>
+                              !
+                            </li>
                           </ol>
                         </div>
                       </div>
@@ -1089,51 +1788,64 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     {onboardingWizardStep === 4 && (
                       <div className="space-y-4 animate-in fade-in duration-200">
                         <div className="p-3 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-100/60 text-left text-[11px] font-medium leading-relaxed">
-                          🏁 Almost there! Paste your Web App URL to configure direct server-to-server connection.
+                          🏁 Almost there! Paste your Web App URL to configure
+                          direct server-to-server connection.
                         </div>
 
                         {/* Google Web App URL endpoint */}
                         <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Google Web App URL</label>
-                          <input 
-                            type="url" 
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Google Web App URL
+                          </label>
+                          <input
+                            type="url"
                             placeholder="https://script.google.com/macros/s/.../exec"
                             value={gasUrl}
                             onChange={(e) => {
                               setGasUrl(e.target.value);
-                              setTestStatus('idle');
+                              setTestStatus("idle");
                               if (validationErrors.gasUrl) {
-                                setValidationErrors(prev => ({ ...prev, gasUrl: '' }));
+                                setValidationErrors((prev) => ({
+                                  ...prev,
+                                  gasUrl: "",
+                                }));
                               }
                             }}
                             required
                             disabled={submitting}
-                            className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.gasUrl ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-mono text-[10px] focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-slate-700`}
+                            className={`w-full h-10 px-3.5 bg-slate-50 border ${validationErrors.gasUrl ? "border-red-500 ring-2 ring-red-100" : "border-[#c3c6d6] hover:border-[#737685]"} rounded-lg font-mono text-[10px] focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-slate-700`}
                           />
                           {validationErrors.gasUrl && (
-                            <p className="text-[10px] text-red-500 font-bold">{validationErrors.gasUrl}</p>
+                            <p className="text-[10px] text-red-500 font-bold">
+                              {validationErrors.gasUrl}
+                            </p>
                           )}
                         </div>
 
                         {/* WhatsApp Phone (Optional) */}
                         <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">WhatsApp Phone (Optional)</label>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            WhatsApp Phone (Optional)
+                          </label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5">
                               <MessageSquare className="w-3.5 h-3.5" />
                             </span>
-                            <input 
-                              type="tel" 
+                            <input
+                              type="tel"
                               placeholder="e.g. +14155552671"
                               value={whatsapp}
                               onChange={(e) => {
                                 setWhatsapp(e.target.value);
                                 if (validationErrors.whatsapp) {
-                                  setValidationErrors(prev => ({ ...prev, whatsapp: '' }));
+                                  setValidationErrors((prev) => ({
+                                    ...prev,
+                                    whatsapp: "",
+                                  }));
                                 }
                               }}
                               disabled={submitting}
-                              className={`w-full h-10 pl-9 pr-3 bg-slate-50 border ${validationErrors.whatsapp ? 'border-red-500 ring-2 ring-red-100' : 'border-[#c3c6d6] hover:border-[#737685]'} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
+                              className={`w-full h-10 pl-9 pr-3 bg-slate-50 border ${validationErrors.whatsapp ? "border-red-500 ring-2 ring-red-100" : "border-[#c3c6d6] hover:border-[#737685]"} rounded-lg font-semibold text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none text-[#041b3c]`}
                             />
                           </div>
                         </div>
@@ -1141,11 +1853,16 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         {/* Connection Validator */}
                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 pt-3">
                           <div className="text-left py-0.5">
-                            <h5 className="font-bold text-[11px] text-[#041b3c] flex items-center gap-1">🔬 Link Validator</h5>
-                            <p className="text-[9px] text-[#565f6a] font-semibold leading-tight">Test your Web App copy link response before saving.</p>
+                            <h5 className="font-bold text-[11px] text-[#041b3c] flex items-center gap-1">
+                              🔬 Link Validator
+                            </h5>
+                            <p className="text-[9px] text-[#565f6a] font-semibold leading-tight">
+                              Test your Web App copy link response before
+                              saving.
+                            </p>
                           </div>
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             onClick={handleTestConnection}
                             disabled={testing || submitting || !gasUrl.trim()}
                             className="h-8 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1 transition-all shadow-3xs disabled:opacity-50"
@@ -1165,37 +1882,47 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         </div>
 
                         {/* Status Banners */}
-                        {testStatus === 'success' && (
+                        {testStatus === "success" && (
                           <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-150 p-3 rounded-lg text-[10.5px] font-bold">
                             <CheckCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                            <span>Success: Deployed Web App is responding correctly!</span>
+                            <span>
+                              Success: Deployed Web App is responding correctly!
+                            </span>
                           </div>
                         )}
-                        {testStatus === 'failed' && (
+                        {testStatus === "failed" && (
                           <div className="bg-red-50 text-red-800 border border-red-200 p-3 rounded-lg text-[10px] font-semibold space-y-0.5">
                             <p className="font-bold text-red-900 flex items-center gap-1">
                               <AlertTriangle className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
                               <span>Connection Validation Failed</span>
                             </p>
-                            <p className="text-slate-550 font-semibold leading-normal text-[10px]">{testError}</p>
+                            <p className="text-slate-550 font-semibold leading-normal text-[10px]">
+                              {testError}
+                            </p>
                           </div>
                         )}
 
                         {/* Delay Warning */}
                         <AnimatePresence>
                           {submitting && isTakingTooLong && (
-                            <motion.div 
+                            <motion.div
                               initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
+                              animate={{ opacity: 1, height: "auto" }}
                               exit={{ opacity: 0, height: 0 }}
                               className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3.5 space-y-2"
                             >
                               <div className="flex items-start gap-2">
                                 <Clock className="w-4 h-4 text-amber-600 animate-spin flex-shrink-0 mt-0.5" />
                                 <div>
-                                  <p className="text-xs font-bold text-amber-950 font-sans">Warming Up Spreadsheet Connection ({elapsedSeconds}s)</p>
+                                  <p className="text-xs font-bold text-amber-950 font-sans">
+                                    Warming Up Spreadsheet Connection (
+                                    {elapsedSeconds}s)
+                                  </p>
                                   <p className="text-[10px] text-slate-550 leading-relaxed font-semibold">
-                                    Google Sheets Apps Script triggers can occasionally take up to 20 seconds to warm up database queries on first deploy. Your fields are safe.
+                                    Google Sheets Apps Script triggers can
+                                    occasionally take up to 20 seconds to warm
+                                    up database queries on first deploy. Your
+                                    fields are safe.
                                   </p>
                                 </div>
                               </div>
@@ -1215,10 +1942,16 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                           <div className="bg-amber-50 text-amber-900 border border-amber-200 p-4 rounded-xl space-y-3 text-left">
                             <p className="font-bold text-xs text-amber-950 flex items-center gap-1.5">
                               <AlertTriangle className="w-4 h-4 text-amber-600 font-bold" />
-                              <span>You Have Already Submitted This Setup!</span>
+                              <span>
+                                You Have Already Submitted This Setup!
+                              </span>
                             </p>
                             <p className="text-slate-750 text-[11px] leading-relaxed font-semibold">
-                              This Google Sheet or email address is already registered on our Super Admin network records. If this is your company setup, please log in with your Admin account. Alternatively, you can bypass this notice to re-register.
+                              This Google Sheet or email address is already
+                              registered on our Super Admin network records. If
+                              this is your company setup, please log in with
+                              your Admin account. Alternatively, you can bypass
+                              this notice to re-register.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-2 pt-1">
                               <button
@@ -1239,7 +1972,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                                 type="button"
                                 onClick={() => {
                                   setDuplicateWarning(null);
-                                  setSubmitError('');
+                                  setSubmitError("");
                                 }}
                                 className="px-3 py-2 bg-white text-slate-700 border border-slate-200 font-bold rounded-lg text-[10.5px] hover:bg-slate-50 cursor-pointer"
                               >
@@ -1259,18 +1992,49 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                             <p className="bg-white/60 p-2.5 rounded border border-red-100 text-slate-800 font-bold font-mono text-[9.5px] leading-relaxed break-words">
                               {submitError}
                             </p>
-                            
+
                             <div className="text-[10.5px] text-slate-700 space-y-1">
-                              <p className="font-extrabold text-slate-900">How to resolve common setup issues:</p>
+                              <p className="font-extrabold text-slate-900">
+                                How to resolve common setup issues:
+                              </p>
                               <ul className="list-disc list-inside space-y-1 pl-1 font-semibold text-slate-650">
                                 <li>
-                                  <span className="text-slate-850">Authorization:</span> Confirm the Web App deployment is executing as <span className="text-indigo-700">"Me"</span> and access is set to <span className="text-indigo-700">"Anyone"</span>.
+                                  <span className="text-slate-850">
+                                    Authorization:
+                                  </span>{" "}
+                                  Confirm the Web App deployment is executing as{" "}
+                                  <span className="text-indigo-700">"Me"</span>{" "}
+                                  and access is set to{" "}
+                                  <span className="text-indigo-700">
+                                    "Anyone"
+                                  </span>
+                                  .
                                 </li>
                                 <li>
-                                  <span className="text-slate-850">Invalid URL:</span> Did you paste the editor URL? Deployed Web App URL must start with <span className="font-mono text-red-650">/macros/s/...</span> and end in <span className="font-mono text-green-700">/exec</span>.
+                                  <span className="text-slate-850">
+                                    Invalid URL:
+                                  </span>{" "}
+                                  Did you paste the editor URL? Deployed Web App
+                                  URL must start with{" "}
+                                  <span className="font-mono text-red-650">
+                                    /macros/s/...
+                                  </span>{" "}
+                                  and end in{" "}
+                                  <span className="font-mono text-green-700">
+                                    /exec
+                                  </span>
+                                  .
                                 </li>
                                 <li>
-                                  <span className="text-slate-850">CORS or Timeout:</span> Ensure you clicked <span className="text-amber-800">"Authorize Access"</span> when executing the initial Apps Script setup inside Google Sheets.
+                                  <span className="text-slate-850">
+                                    CORS or Timeout:
+                                  </span>{" "}
+                                  Ensure you clicked{" "}
+                                  <span className="text-amber-800">
+                                    "Authorize Access"
+                                  </span>{" "}
+                                  when executing the initial Apps Script setup
+                                  inside Google Sheets.
                                 </li>
                               </ul>
                             </div>
@@ -1278,7 +2042,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         )}
                       </div>
                     )}
-
                   </div>
 
                   {/* Fixed Footer */}
@@ -1361,9 +2124,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-[#041b3c] tracking-tight">
-                      {isCompanySetup ? `Login to: ${localStorage.getItem('company_name') || localStorage.getItem('salaryportal_onboard_companyName') || companyName || 'Workspace'}` : "Access Deployed Portal"}
+                      {isCompanySetup
+                        ? `Login to: ${localStorage.getItem("company_name") || localStorage.getItem("salaryportal_onboard_companyName") || companyName || "Workspace"}`
+                        : "Access Deployed Portal"}
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-semibold uppercase font-mono tracking-wider">Fast Connection Console</p>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase font-mono tracking-wider">
+                      Fast Connection Console
+                    </p>
                   </div>
                 </div>
                 {!loginSubmitting && (
@@ -1377,30 +2144,32 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               </div>
 
               {/* Scrollable Form Content */}
-              <form onSubmit={handleExistingConnect} className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4">
-                
+              <form
+                onSubmit={handleExistingConnect}
+                className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4"
+              >
                 {/* Tab Switcher at the very top */}
                 <div className="p-1 bg-slate-100 rounded-xl grid grid-cols-2 gap-1">
                   <button
                     type="button"
-                    onClick={() => setLoginTab('staff')}
+                    onClick={() => setLoginTab("staff")}
                     disabled={loginSubmitting}
                     className={`py-2 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
-                      loginTab === 'staff' 
-                        ? 'bg-white text-[#003d9b] shadow-2xs' 
-                        : 'text-slate-550 hover:bg-white/40'
+                      loginTab === "staff"
+                        ? "bg-white text-[#003d9b] shadow-2xs"
+                        : "text-slate-550 hover:bg-white/40"
                     }`}
                   >
                     Staff Portal
                   </button>
                   <button
                     type="button"
-                    onClick={() => setLoginTab('admin')}
+                    onClick={() => setLoginTab("admin")}
                     disabled={loginSubmitting}
                     className={`py-2 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
-                      loginTab === 'admin' 
-                        ? 'bg-white text-[#003d9b] shadow-2xs' 
-                        : 'text-slate-550 hover:bg-white/40'
+                      loginTab === "admin"
+                        ? "bg-white text-[#003d9b] shadow-2xs"
+                        : "text-slate-550 hover:bg-white/40"
                     }`}
                   >
                     Admin Console
@@ -1408,29 +2177,40 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 </div>
 
                 {/* If company is setup, show a nice indicator badge */}
-                {isCompanySetup && (() => {
-                  const activeCompanyName = localStorage.getItem('company_name') || localStorage.getItem('salaryportal_onboard_companyName') || companyName || 'Active Company Portal';
-                  
-                  return (
-                    <div className="p-3.5 rounded-2xl bg-[#f1f3ff]/40 border border-blue-500/10 flex items-center gap-2.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                      <div className="overflow-hidden flex-1">
-                        <p className="text-[9px] font-extrabold text-[#003d9b] uppercase tracking-wider">Active Workspace Connected</p>
-                        <p className="text-xs font-bold text-[#041b3c] truncate max-w-[280px]">{activeCompanyName}</p>
+                {isCompanySetup &&
+                  (() => {
+                    const activeCompanyName =
+                      localStorage.getItem("company_name") ||
+                      localStorage.getItem(
+                        "salaryportal_onboard_companyName",
+                      ) ||
+                      companyName ||
+                      "Active Company Portal";
+
+                    return (
+                      <div className="p-3.5 rounded-2xl bg-[#f1f3ff]/40 border border-blue-500/10 flex items-center gap-2.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                        <div className="overflow-hidden flex-1">
+                          <p className="text-[9px] font-extrabold text-[#003d9b] uppercase tracking-wider">
+                            Active Workspace Connected
+                          </p>
+                          <p className="text-xs font-bold text-[#041b3c] truncate max-w-[280px]">
+                            {activeCompanyName}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
 
                 {/* Conditional Fields based on tab Selection */}
-                {loginTab === 'staff' ? (
+                {loginTab === "staff" ? (
                   <div className="space-y-4">
-                    
                     {/* Google Apps Script URL - Ask here only if NOT setup */}
                     {!isCompanySetup && (
                       <div className="space-y-1.5">
                         <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Google Apps Script URL <span className="text-red-500">*</span>
+                          Google Apps Script URL{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -1443,14 +2223,15 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                             value={loginGasUrl}
                             onChange={(e) => {
                               setLoginGasUrl(e.target.value);
-                              if (loginError) setLoginError('');
+                              if (loginError) setLoginError("");
                             }}
                             disabled={loginSubmitting}
                             className="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none"
                           />
                         </div>
                         <p className="text-[9px] text-slate-500 font-semibold leading-normal">
-                          Requires the deployed Web App URL from your Google Sheet.
+                          Requires the deployed Web App URL from your Google
+                          Sheet.
                         </p>
                       </div>
                     )}
@@ -1458,7 +2239,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     {/* Employee Access Code */}
                     <div className="space-y-1.5 p-3 rounded-2xl bg-[#f1f3ff]/40 border border-blue-500/10">
                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Employee Access Code <span className="text-slate-400 font-normal">(Optional)</span>
+                        Employee Access Code{" "}
+                        <span className="text-slate-400 font-normal">
+                          (Optional)
+                        </span>
                       </label>
                       <div className="relative">
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -1480,12 +2264,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   </div>
                 ) : (
                   <div className="space-y-3.5 p-3 rounded-2xl bg-slate-50 border border-slate-150">
-                    
                     {/* Google Apps Script URL - Ask here only if NOT setup */}
                     {!isCompanySetup && (
                       <div className="space-y-1.5">
                         <label className="block text-[10px] font-bold text-[#041b3c] uppercase tracking-wider">
-                          Google Apps Script URL <span className="text-red-500">*</span>
+                          Google Apps Script URL{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -1498,21 +2282,23 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                             value={loginGasUrl}
                             onChange={(e) => {
                               setLoginGasUrl(e.target.value);
-                              if (loginError) setLoginError('');
+                              if (loginError) setLoginError("");
                             }}
                             disabled={loginSubmitting}
                             className="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none animate-in slide-in-from-top-1 dur-100"
                           />
                         </div>
                         <p className="text-[9px] text-slate-500 font-semibold leading-normal pb-2 border-b border-slate-100">
-                          Provide your deployed Google sheet Apps Script Web App URL first.
+                          Provide your deployed Google sheet Apps Script Web App
+                          URL first.
                         </p>
                       </div>
                     )}
 
                     <div className="space-y-1.5">
                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Admin Email Address <span className="text-red-500">*</span>
+                        Admin Email Address{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -1520,12 +2306,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         </span>
                         <input
                           type="email"
-                          required={loginTab === 'admin'}
+                          required={loginTab === "admin"}
                           placeholder="e.g. admin@enterprise.com"
                           value={loginAdminEmail}
                           onChange={(e) => {
                             setLoginAdminEmail(e.target.value);
-                            if (loginError) setLoginError('');
+                            if (loginError) setLoginError("");
                           }}
                           disabled={loginSubmitting}
                           className="w-full h-11 pl-10 pr-4 bg-slate-50/70 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none"
@@ -1543,12 +2329,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         </span>
                         <input
                           type="password"
-                          required={loginTab === 'admin'}
+                          required={loginTab === "admin"}
                           placeholder="••••••••"
                           value={loginAdminPassword}
                           onChange={(e) => {
                             setLoginAdminPassword(e.target.value);
-                            if (loginError) setLoginError('');
+                            if (loginError) setLoginError("");
                           }}
                           disabled={loginSubmitting}
                           className="w-full h-11 pl-10 pr-4 bg-slate-50/70 border border-slate-200 hover:border-slate-300 rounded-xl text-xs focus:bg-white focus:border-[#003d9b] focus:ring-2 focus:ring-[#e8edff] transition-all outline-none"
@@ -1563,8 +2349,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   <div className="bg-red-50 text-red-900 border border-red-100 p-3 rounded-xl flex items-start gap-2 animate-in fade-in zoom-in-95 duration-150">
                     <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[11px] font-bold text-red-950">Authentication Failed</p>
-                      <p className="text-[10px] text-slate-550 leading-relaxed font-semibold">{loginError}</p>
+                      <p className="text-[11px] font-bold text-red-950">
+                        Authentication Failed
+                      </p>
+                      <p className="text-[10px] text-slate-550 leading-relaxed font-semibold">
+                        {loginError}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -1587,7 +2377,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     </>
                   )}
                 </button>
-
               </form>
             </motion.div>
           </div>

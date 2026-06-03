@@ -44,7 +44,7 @@ interface AdminPanelProps {
 const t = {
   en: {
     adminTitle: "Enterprise Payroll Control Hub",
-    manageEmployees: "Manger Employees",
+    manageEmployees: "Manage Employees",
     manageSlips: "Manage Salary Slips",
     bulkImport: "Bulk CSV Importer",
     searchPlaceholder: "Search by ID, Name or code...",
@@ -1199,7 +1199,7 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
                             ) : (
                               <>
                                 <EyeOff className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                                <span className="text-slate-300 blur-xs select-none selection:bg-transparent text-xs">{emp.accessCode}</span>
+                                <span className="text-slate-400 select-none tracking-widest text-xs">••••••</span>
                               </>
                             )}
                           </div>
