@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, Globe } from 'lucide-react';
 
 interface HeaderProps {
   isSyncing?: boolean;
@@ -51,14 +51,14 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         
         <div className="flex items-center gap-2.5 no-print">
-          {/* Icon-only Language Button Toggle */}
+          {/* Icon-only Language Button Toggle - matches Admin Panel styling */}
           <button
             type="button"
             onClick={() => onChangeLang?.(activeLang === 'en' ? 'ar' : 'en')}
-            className="w-6 h-6 rounded-md flex items-center justify-center bg-transparent hover:bg-slate-50 text-slate-400 hover:text-blue-700 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500/20 outline-none"
+            className="w-9 h-9 flex items-center justify-center bg-white border border-[#D1E1F5] rounded-xl text-blue-600 hover:bg-slate-50 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500/20 outline-none"
             title={activeLang === 'en' ? 'Switch to Arabic' : 'تغيير للإنجليزية'}
           >
-            <span className="material-symbols-outlined text-[12px]">translate</span>
+            <Globe className="w-4 h-4" />
           </button>
 
           <div 

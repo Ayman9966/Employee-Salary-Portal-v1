@@ -1,8 +1,8 @@
-# 💎 AirSlip - Bilingual Workforce Payslip Engine
+# 💎 Employee PaySlip Viewer Portal - Bilingual Workforce Payslip Engine
 
-AirSlip is a professional, mobile-first, and highly optimized Employee Salary Portal and Enterprise Payroll Control Console. It enables modern organizations to operate a fully transparent, highly responsive, and secure payroll distribution system directly on top of **Google Sheets** using a serverless **Google Apps Script (GAS)** Web App backend, bypassing the need for complex, heavy SQL databases.
+Employee PaySlip Viewer Portal is a professional, mobile-first, and highly optimized Employee Salary Portal and Enterprise Payroll Control Console. It enables modern organizations to operate a fully transparent, highly responsive, and secure payroll distribution system directly on top of **Google Sheets** using a serverless **Google Apps Script (GAS)** Web App backend, bypassing the need for complex, heavy SQL databases.
 
-Employees can securely access monthly payslips, inspect year-to-date earnings trends, and download bilingual breakdowns. At the same time, administrators can manage files, review staff metrics, issue payslips through our elegant portal, and instantly onboard new employees using AirSlip's **Zero-Environment Auto-Onboarding**.
+Employees can securely access monthly payslips, inspect year-to-date earnings trends, and download bilingual breakdowns. At the same time, administrators can manage files, review staff metrics, issue payslips through our elegant portal, and instantly onboard new employees using our **Zero-Environment Auto-Onboarding**.
 
 ---
 
@@ -13,21 +13,21 @@ Employees can securely access monthly payslips, inspect year-to-date earnings tr
 - **Offline Resiliency:** Automatic local cache storage policies for seamless network transitions.
 - **Integrated Install Flow:** Context-aware mobile setup guide inside the app for seamless PWA installations across Safari and Chrome.
 
-### 👤 Employee & Workforce Portal
-- **Zero-Friction Access:** Fully secure authentication utilizing individual corporate Employee Access Codes.
-- **Dynamic Year-To-Date (YTD) Analytics:** Direct calculations on total earnings, deductions, and tax withholdings with visual metrics.
+### 👥 Employee & Workforce Portal
+- **Secure Access Code Security:** Safe authentication using letters, numbers, and selected special characters (`@`, `!`, `#`) only.
+- **YTD (Year-To-Date) Analytics:** Direct calculations on total earnings, deductions, and tax withholdings with visual metrics.
 - **Bilingual Payslip Layouts:** Mobile-optimized, print-ready, bilingual breakdowns (English & Arabic) showing precise calculations.
 
+### 🇪🇬 Multi-Language Egyptian HR Translation Dictionary
+An interactive smart-mapping dictionary translates earnings & deductions labels seamlessly between English and Arabic depending on the client language switch:
+- **Earnings Translate:** Basic Salary (الراتب الأساسي), Housing Allowance (بدل سكن), Transport Allowance (بدل انتقال / مواصلات), Overtime Pay (أجر الوقت الإضافي), Performance Bonus (مكافأة أداء), Sales Commission (عمولة مبيعات), Mobile & Data Allowance (بدل هاتف وإنترنت), and more.
+- **Deductions Translate:** Social Insurance (التأمينات الاجتماعية), Income Tax (ضريبة الدخل), Absence Deduction (خصم غياب), Late Arrival Penalty (جزاء تأخير), and more.
+
 ### 💼 Administrator Control Hub
-- **Zero-Environment Auto-Onboarding:** Generate secure `?invite=` URLs that instantly configure the workspace on any employee's phone for 60 seconds.
+- **Zero-Environment Auto-Onboarding:** Generate secure `?invite=` URLs that configure workspace layouts instantly.
 - **Employee Directory Management:** Create, update, or remove personnel profiles right from the portal or directly inside Google Sheets.
 - **Payslip Ledger Distribution:** Add, modify, or delete monthly payslip entries with a real-time validation engine.
-- **Bulk Data Migration:** Seamless JSON imports/exports for fast onboarding of organizations.
-
-### 📊 Backend & Google Sheets Integration
-- **Serverless API Proxy:** Vercel serverless functions (`/api/*`) securely map to Google Apps Script endpoints to bypass CORS issues and secure deployment.
-- **Zero-Infrastructure Setup:** Runs entirely inside lightweight, secure Google Sheets rows.
-- **Dynamic Headers Support:** Create custom columns in your ledger prepended with `ER_` (Earnings) or `DE_` (Deductions); AirSlip's parser dynamically creates categories on the fly.
+- **Bulk Data Migration:** Seamless JSON / XLS imports & exports for fast organization-wide onboarding.
 
 ---
 
@@ -44,22 +44,21 @@ Employees can securely access monthly payslips, inspect year-to-date earnings tr
 
 ## ⚙️ Step-by-Step Backend Deployment Guide
 
-Setting up your AirSlip deployment is extremely straightforward and takes less than 5 minutes.
+Setting up your Payslip Portal deployment is extremely straightforward and takes less than 5 minutes.
 
 ### Step 1: Create a Google Sheet
-1. Navigate to [Google Sheets](https://sheets.google.com) and create a brand-new blank spreadsheet.
-2. Provide a clean name for your sheet (e.g., `AirSlip Payroll Sheets Ledger`).
+1. Navigate directly to the [Pre-Configured Google Sheets Template](https://docs.google.com/spreadsheets/d/1RdG0Yi4910D1LgqCKWZvHcpYtRXHWIF7G8v7RrNcJ_A/template/preview).
+2. Click **Use Template** in the top-right corner to copy it into your Google Drive. 
 
 ### Step 2: Bind the Apps Script Backend
 1. In your new Google Sheet, click **Extensions** in the top menu, then select **Apps Script**.
 2. Rename the default file from `Code.gs` to `google-apps-script.gs` and copy the complete contents of `google-apps-script.js` from this project into it.
 3. Click the **➕ Add a file** icon inside Apps Script, create a new script named `google-apps-script-setup`, and copy the contents of `google-apps-script-setup.js` into it.
-4. (Optional) Create a third script file named `google-apps-script-super-admin` and copy `google-apps-script-super-admin.js` into it if you would like advanced administrative functions.
-5. Save your Apps Script project by clicking the Disk Icon (**Save Project**).
+4. Save your Apps Script project by clicking the Disk Icon (**Save Project**).
 
 ### Step 3: Initialize the Sheet Structures
 1. Refresh your Google Sheet browser tab.
-2. A new option will appear in your top-level Excel menu: **🚀 Enterprise Payroll** (or **🚀 AirSlip Portal**).
+2. A new option will appear in your top-level menu: **🚀 Enterprise Payroll** (or **🚀 AirSlip Portal**).
 3. Click **Initialize System**. (If Google prompts you for authorization permissions, grant them; this is required for the script to create tabs and mock test inputs for you).
 4. The script will automatically generate three pre-configured tabs:
    - **`MasterData`:** The workforce employee list.
@@ -70,7 +69,7 @@ Setting up your AirSlip deployment is extremely straightforward and takes less t
 1. In your Apps Script editor, click the blue **Deploy** button in the top-right corner, and choose **New deployment**.
 2. Click the gear icon alongside **Select type** and choose **Web app**.
 3. Set the configuration exactly as follows:
-   - **Description:** `AirSlip Core API Endpoint v2.0`
+   - **Description:** `Core API Endpoint v2.0`
    - **Execute as:** `Me (your-email@gmail.com)`
    - **Who has access:** `Anyone` (Crucial: This enables the browser to make secure requests without requiring your employees to sign in to Google Cloud).
 4. Click **Deploy**.
@@ -82,7 +81,7 @@ Setting up your AirSlip deployment is extremely straightforward and takes less t
 
 Once you have your Apps Script Web App URL, connecting the portal is simple:
 
-1. Launch the AirSlip application in your browser.
+1. Launch the Employee PaySlip Viewer Portal in your browser.
 2. On the welcoming onboarding stage, click **Sign In / Admin Login** in the top navigation or **Sign In to Existing Portal**.
 3. Paste the copied **Google Apps Script URL** in the form field.
 4. **To Login as Employee:** Choose the **Staff Portal** tab, type your matching Access Code defined in the `MasterData` tab (e.g. `E001`), and click **Connect**.
@@ -101,7 +100,7 @@ Rows in this sheet define valid employees authorized to request records:
 
 | Column Header | Format / Type | Purpose |
 | :--- | :--- | :--- |
-| **Access Code** | `Plain Text (e.g. E1024)` | Employee primary login code (Case-sensitive) |
+| **Access Code** | `Plain Text (e.g. E1024)` | Employee primary login code (Letters, numbers, and selected special characters `@`, `!`, `#` only) |
 | **Employee ID** | `Plain Text (e.g. AS-421)` | Formal corporate company ID |
 | **Employee Name**|`Plain Text (e.g. Sarah Connor)`| Name displayed on the dashboard |
 | **Job Title** | `Plain Text (e.g. Senior Dev)`| Employee role description |
@@ -114,7 +113,7 @@ This sheet contains monthly transactions containing base payouts, deductions, an
 - **Metadata Fields:**
   - `Access Code`: Matches employee code from MasterData.
   - `Month`: Fully spelled month name (e.g. `January`, `February`).
-  - `Year`: Calender year number (e.g. `2026`).
+  - `Year`: Calendar year number (e.g. `2026`).
   - `Status`: Current state (`Processed`, `Under Review`, or `On Hold`).
   - `Basic Salary`: Base contractual payout.
   - `Net Pay`: The total payout resulting from additions minus subtractions.
@@ -127,8 +126,9 @@ This sheet contains monthly transactions containing base payouts, deductions, an
 ## 🔒 Security Principles & Core Controls
 
 1. **Information Isolation:** Employees cannot scan or access other individuals' profiles. The Apps Script backend only yields rows corresponding to a verified, single `accessCode`.
-2. **Strict Payload Integrity:** Critical fields (net amounts, withholdings, dates) are computed at the spreadsheet boundary and double-checked by the client before layout rendering.
-3. **No Database Keys Shared:** Google Spreadsheet IDs or GCP IAM account tokens are handled securely on Google's script cloud, preventing Client-Side inspection exploits.
+2. **Access Code Masking & Input Validation:** Strict regex filtering guarantees access codes consist of numbers, letters, and custom character masks (`@`, `!`, `#`) only.
+3. **Strict Payload Integrity:** Critical fields (net amounts, withholdings, dates) are computed at the spreadsheet boundary and double-checked by the client before layout rendering.
+4. **No Database Keys Shared:** Google Spreadsheet IDs or GCP IAM account tokens are handled securely on Google's script cloud, preventing Client-Side inspection exploits.
 
 ---
-*© 2026 AirSlip | Automated Bilingual HR Distribution & Verification Platform. Built with care and absolute clarity.*
+*© 2026 Employee PaySlip Viewer Portal | Automated Bilingual HR Distribution & Verification Platform.*

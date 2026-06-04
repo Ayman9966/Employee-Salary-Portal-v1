@@ -34,9 +34,15 @@ import {
 } from "lucide-react";
 
 export default function App() {
-  const [accessCode, setAccessCode] = useState<string | null>(
-    localStorage.getItem("access_code"),
-  );
+  const [accessCode, setAccessCode] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlRef = params.get("ref");
+    if (urlRef) {
+      localStorage.setItem("access_code", urlRef);
+      return urlRef;
+    }
+    return localStorage.getItem("access_code");
+  });
   const [isDemoMode, setIsDemoMode] = useState(
     () => localStorage.getItem("is_demo_mode") === "true",
   );
@@ -371,7 +377,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const refCode = params.get("ref");
 
-    if (refCode && !accessCode) {
+    if (refCode) {
       localStorage.setItem("access_code", refCode);
       setAccessCode(refCode);
       // Clean up the URL
@@ -427,6 +433,15 @@ export default function App() {
     if (tempCode.trim()) {
       if (tempCode.trim().toLowerCase() === "admin") {
         setError("Unauthorized access code.");
+        return;
+      }
+      const invalidRegex = /[^a-zA-Z0-9@!#]/;
+      if (invalidRegex.test(tempCode.trim())) {
+        setError(
+          lang === "en"
+            ? "Access Code can only contain letters, numbers, and (@, !, #) characters."
+            : "يمكن أن يحتوي رمز الدخول على أحرف وأرقام ورموز (@، !، #) فقط."
+        );
         return;
       }
       localStorage.setItem("access_code", tempCode.trim());
@@ -516,7 +531,13 @@ export default function App() {
   };
 
   if (!gasUrlConfigured) {
-    return <Onboarding onComplete={handleOnboardingComplete} />;
+    return (
+      <Onboarding
+        onComplete={handleOnboardingComplete}
+        lang={lang}
+        onChangeLang={handleChangeLang}
+      />
+    );
   }
 
   if (isBlocked) {
@@ -600,17 +621,21 @@ export default function App() {
           <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
             <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-white inline-block"></span>
-              Demo Mode
+              {lang === "en" ? "Demo Mode" : "وضع التجربة"}
             </span>
-            <span className="font-bold text-blue-100">Demo Workspace:</span>
-            <span className="font-semibold text-white">AirSlip Demo</span>
+            <span className="font-bold text-blue-100">
+              {lang === "en" ? "Demo Workspace:" : "مساحة العمل التجريبية:"}
+            </span>
+            <span className="font-semibold text-white">
+              {lang === "en" ? "AirSlip Demo" : "تجربة إيرسليب"}
+            </span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] sm:text-[11px]">
             <button
               onClick={handlePerformFullReset}
               className="ml-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-3 py-1 bg-rose-600 hover:bg-rose-700 rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-95 duration-150 cursor-pointer shadow-sm shadow-red-950/20"
             >
-              Leave Demo
+              {lang === "en" ? "Leave Demo" : "مغادرة التجربة"}
             </button>
           </div>
         </div>
@@ -622,9 +647,22 @@ export default function App() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-blue-50"
+            dir={lang === "ar" ? "rtl" : "ltr"}
           >
             {isDemoMode ? (
               <div className="space-y-6">
+                <div className="flex justify-between items-center -mb-2">
+                  <div className="w-8 h-8 rounded-full" />
+                  <button
+                    type="button"
+                    onClick={() => handleChangeLang(lang === "en" ? "ar" : "en")}
+                    className="hidden flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-full text-[10px] font-bold text-slate-600 cursor-pointer shadow-3xs transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">language</span>
+                    <span>{lang === "en" ? "العربية" : "English"}</span>
+                  </button>
+                </div>
+
                 <div className="text-center mb-5">
                   <div className="w-14 h-14 bg-blue-50 text-[#003d9b] rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-100">
                     <span className="material-symbols-outlined text-[28px] font-bold">
@@ -632,11 +670,12 @@ export default function App() {
                     </span>
                   </div>
                   <h1 className="text-xl font-black text-slate-800 tracking-tight">
-                    Demo Sandbox Entrance
+                    {lang === "en" ? "Demo Sandbox Entrance" : "مدخل التجربة السريعة (Sandbox)"}
                   </h1>
                   <p className="text-slate-500 text-xs mt-1 leading-normal">
-                    Explore AirSlip instantly without entering credentials.
-                    Choose either sandbox viewpoint below:
+                    {lang === "en" 
+                      ? "Explore AirSlip instantly without entering credentials. Choose either sandbox viewpoint below:"
+                      : "استكشف ميزات بوابة الرواتب فوراً دون الحاجة لإدخال بيانات اعتماد. اختر أحد منظوري التجربة أدناه:"}
                   </p>
                 </div>
 
@@ -648,7 +687,7 @@ export default function App() {
                       localStorage.setItem("access_code", "1234");
                       setAccessCode("1234");
                     }}
-                    className="w-full p-4 border border-blue-100 hover:border-blue-400 bg-blue-50/20 hover:bg-blue-50/50 rounded-2xl transition-all cursor-pointer text-left flex items-start gap-4 active:scale-[0.98] group shadow-xs"
+                    className={`w-full p-4 border border-blue-100 hover:border-blue-400 bg-blue-50/20 hover:bg-blue-50/50 rounded-2xl transition-all cursor-pointer ${lang === 'ar' ? 'text-right' : 'text-left'} flex items-start gap-4 active:scale-[0.98] group shadow-xs`}
                   >
                     <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#003d9b] flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:bg-[#003d9b] group-hover:text-white transition-colors">
                       <span className="material-symbols-outlined text-[20px]">
@@ -657,15 +696,15 @@ export default function App() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors flex items-center justify-between">
-                        <span>Test Employee View</span>
-                        <span className="material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform">
+                        <span>{lang === "en" ? "Test Employee View" : "تجربة واجهة الموظف"}</span>
+                        <span className={`material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform ${lang === 'ar' ? 'rotate-180' : ''}`}>
                           arrow_forward
                         </span>
                       </h3>
                       <p className="text-slate-400 text-[10px] sm:text-[11px] mt-0.5 leading-normal">
-                        Browse payslip histories, check active statements,
-                        export interactive items as PDF, and toggle language
-                        preferences.
+                        {lang === "en"
+                          ? "Browse payslip histories, check active statements, export interactive items as PDF, and toggle language preferences."
+                          : "تصفح سجلات الرواتب، تحقق من البيانات النشطة، تصدير التقارير التفاعلية كملف PDF وتغيير تفضيلات اللغة."}
                       </p>
                     </div>
                   </button>
@@ -677,7 +716,7 @@ export default function App() {
                       setAccessCode("admin");
                       setCurrentView("admin");
                     }}
-                    className="w-full p-4 border border-slate-100 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-2xl transition-all cursor-pointer text-left flex items-start gap-4 active:scale-[0.98] group shadow-xs"
+                    className={`w-full p-4 border border-slate-100 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-2xl transition-all cursor-pointer ${lang === 'ar' ? 'text-right' : 'text-left'} flex items-start gap-4 active:scale-[0.98] group shadow-xs`}
                   >
                     <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:bg-slate-800 group-hover:text-white transition-colors">
                       <span className="material-symbols-outlined text-[20px]">
@@ -686,14 +725,15 @@ export default function App() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors flex items-center justify-between">
-                        <span>Test Admin View</span>
-                        <span className="material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform">
+                        <span>{lang === "en" ? "Test Admin View" : "تجربة واجهة المسؤول"}</span>
+                        <span className={`material-symbols-outlined text-[14px] group-hover:translate-x-1 transition-transform ${lang === 'ar' ? 'rotate-180' : ''}`}>
                           arrow_forward
                         </span>
                       </h3>
                       <p className="text-slate-400 text-[10px] sm:text-[11px] mt-0.5 leading-normal">
-                        Load XLS records natively, perform math verification
-                        audits on active records, and update details directly.
+                        {lang === "en"
+                          ? "Load XLS records natively, perform math verification audits on active records, and update details directly."
+                          : "تحميل سجلات XLS محلياً، إجراء تدقيق الحسابات والتحقق الرياضي من السجلات وتحديث البيانات مباشرة."}
                       </p>
                     </div>
                   </button>
@@ -804,9 +844,14 @@ export default function App() {
                   <div>
                     <input
                       type="password"
-                      placeholder="Access Code"
+                      placeholder={lang === "en" ? "Access Code" : "كود الدخول"}
                       value={tempCode}
-                      onChange={(e) => setTempCode(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const filtered = val.replace(/[^a-zA-Z0-9@!#]/g, '');
+                        setTempCode(filtered);
+                        if (error) setError("");
+                      }}
                       className="w-full h-12 px-4 rounded-xl border border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 ease-in-out outline-none text-center text-lg tracking-widest font-mono font-bold"
                       required
                     />
@@ -1060,6 +1105,8 @@ export default function App() {
 
                   return (
                     <AdminPanel
+                      lang={lang}
+                      onChangeLang={handleChangeLang}
                       onSyncTrigger={() => {
                         // Instantly update local slip lists and dashboard aggregators when changed
                         fetchSalarySlips().then((freshSlips) => {

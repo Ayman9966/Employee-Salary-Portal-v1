@@ -1,6 +1,6 @@
 {
-  "name": "Remix: Employee Salary Portal / v1",
-  "description": "An application for employees to view salary slips and manage preferences",
+  "name": "Employee PaySlip Viewer Portal",
+  "description": "urn Google Sheets into a secure, mobile-first employee payroll portal. Dynamic payslip breakdowns, serverless architecture, and zero database costs.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

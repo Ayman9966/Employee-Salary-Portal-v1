@@ -21,7 +21,6 @@ import {
   Plus, 
   Edit, 
   Trash2, 
-  Globe, 
   AlertTriangle, 
   CheckCircle, 
   ChevronRight, 
@@ -30,14 +29,18 @@ import {
   Download,
   ExternalLink,
   Eye,
-  EyeOff
+  EyeOff,
+  Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatAmount } from '../lib/format';
+import { getTranslatedLabel } from '../lib/translations';
 
 interface AdminPanelProps {
   onSyncTrigger?: () => void;
   onLogout?: () => void;
+  lang?: 'en' | 'ar';
+  onChangeLang?: (lang: 'en' | 'ar') => void;
 }
 
 // Language Translations (English & Arabic)
@@ -156,8 +159,15 @@ const t = {
 
 const MONTHS_LIST = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ onSyncTrigger, onLogout }) => {
-  const [lang, setLang] = useState<'en' | 'ar'>('en');
+export const AdminPanel: React.FC<AdminPanelProps> = ({ 
+  onSyncTrigger, 
+  onLogout,
+  lang: outerLang,
+  onChangeLang
+}) => {
+  const [internalLang, setInternalLang] = useState<'en' | 'ar'>('en');
+  const lang = outerLang || internalLang;
+  const setLang = onChangeLang || setInternalLang;
   const [activeSubTab, setActiveSubTab] = useState<'employees' | 'slips' | 'import' | 'invite'>('employees');
   const [inviteCopied, setInviteCopied] = useState(false);
   
@@ -442,6 +452,17 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
     e.preventDefault();
     if (!employeeFormData.accessCode || !employeeFormData.employeeId || !employeeFormData.name) {
       triggerFeedback("Please fill required fields", "error");
+      return;
+    }
+
+    const invalidRegex = /[^a-zA-Z0-9@!#]/;
+    if (invalidRegex.test(employeeFormData.accessCode)) {
+      triggerFeedback(
+        lang === 'en' 
+          ? "Access Code can only contain letters, numbers, and (@, !, #) characters." 
+          : "يمكن أن يحتوي كود الدخول على أحرف وأرقام ورموز (@، !، #) فقط.", 
+        "error"
+      );
       return;
     }
 
@@ -782,6 +803,13 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
     setSelectedDeductionsCols(detectDe);
 
     triggerFeedback(lang === 'en' ? "File analyzed successfully!" : "تم قراءة المكونات والبيانات من الملف بنجاح!", "success");
+
+    setTimeout(() => {
+      const element = document.getElementById("csv-mapping-section");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 150);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1007,16 +1035,6 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
         </div>
 
         <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
-          {/* Lanuage Switcher */}
-          <button 
-            type="button"
-            onClick={() => setLang(prev => prev === 'en' ? 'ar' : 'en')}
-            className="flex items-center justify-center w-9 h-9 bg-white border border-[#D1E1F5] rounded-xl text-primary hover:bg-slate-50 transition-colors cursor-pointer"
-            title={lang === 'en' ? 'Switch to Arabic' : 'تغيير اللغة إلى الإنجليزية'}
-          >
-            <Globe className="w-4 h-4" />
-          </button>
-
           {/* Logout Button */}
           <button 
             type="button"
@@ -1472,7 +1490,7 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
 
           {/* MAPPING COMPONENT STEP (Visible once file/text analyzed) */}
           {importFileHeaders.length > 0 && (
-            <div className="bg-white border border-[#D1E1F5] rounded-xl overflow-hidden shadow-xs">
+            <div id="csv-mapping-section" className="bg-white border border-[#D1E1F5] rounded-xl overflow-hidden shadow-xs animate-fade-in">
               <div className="bg-[#E9F2FF] p-4 border-b border-blue-100">
                 <h3 className="font-bold text-primary text-sm flex items-center gap-2">
                   <FileSpreadsheet className="w-5 h-5" />
@@ -1529,24 +1547,31 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
                       <p className="text-caption text-emerald-700 mb-3">{t[lang].earningAmtDesc}</p>
                       
                       <div className="flex flex-wrap gap-2">
-                        {importFileHeaders.map(col => {
-                          const isSelected = selectedEarningsCols.includes(col);
-                          return (
-                            <button
-                              key={col}
-                              onClick={() => {
-                                setSelectedEarningsCols(prev => isSelected ? prev.filter(x => x !== col) : [...prev, col]);
-                              }}
-                              className={`text-xs px-2.5 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
-                                isSelected 
-                                  ? 'bg-emerald-600 text-white border-emerald-600' 
-                                  : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300'
-                              }`}
-                            >
-                              {col}
-                            </button>
-                          );
-                        })}
+                        {importFileHeaders
+                          .filter(col => {
+                            const isMappedInSystemField = Object.values(mapping).includes(col);
+                            const isSelectedInDeductions = selectedDeductionsCols.includes(col);
+                            return (!isMappedInSystemField && !isSelectedInDeductions) || selectedEarningsCols.includes(col);
+                          })
+                          .map(col => {
+                            const isSelected = selectedEarningsCols.includes(col);
+                            return (
+                              <button
+                                key={col}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedEarningsCols(prev => isSelected ? prev.filter(x => x !== col) : [...prev, col]);
+                                }}
+                                className={`text-xs px-2.5 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
+                                  isSelected 
+                                    ? 'bg-emerald-600 text-white border-emerald-600' 
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300'
+                                }`}
+                              >
+                                {col}
+                              </button>
+                            );
+                          })}
                       </div>
                     </div>
 
@@ -1558,24 +1583,31 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
                       <p className="text-caption text-red-600 mb-3">{t[lang].deductionAmtDesc}</p>
                       
                       <div className="flex flex-wrap gap-2">
-                        {importFileHeaders.map(col => {
-                          const isSelected = selectedDeductionsCols.includes(col);
-                          return (
-                            <button
-                              key={col}
-                              onClick={() => {
-                                setSelectedDeductionsCols(prev => isSelected ? prev.filter(x => x !== col) : [...prev, col]);
-                              }}
-                              className={`text-xs px-2.5 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
-                                isSelected 
-                                  ? 'bg-red-600 text-white border-red-600' 
-                                  : 'bg-white text-slate-600 border-slate-200 hover:border-red-300'
-                              }`}
-                            >
-                              {col}
-                            </button>
-                          );
-                        })}
+                        {importFileHeaders
+                          .filter(col => {
+                            const isMappedInSystemField = Object.values(mapping).includes(col);
+                            const isSelectedInEarnings = selectedEarningsCols.includes(col);
+                            return (!isMappedInSystemField && !isSelectedInEarnings) || selectedDeductionsCols.includes(col);
+                          })
+                          .map(col => {
+                            const isSelected = selectedDeductionsCols.includes(col);
+                            return (
+                              <button
+                                key={col}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDeductionsCols(prev => isSelected ? prev.filter(x => x !== col) : [...prev, col]);
+                                }}
+                                className={`text-xs px-2.5 py-1.5 rounded-lg border font-medium transition-all cursor-pointer ${
+                                  isSelected 
+                                    ? 'bg-red-600 text-white border-red-600' 
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-red-300'
+                                }`}
+                              >
+                                {col}
+                              </button>
+                            );
+                          })}
                       </div>
                     </div>
                   </div>
@@ -1588,15 +1620,22 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
                     <table className="w-full text-left text-xs font-mono">
                       <thead className="bg-[#f8fafc] text-secondary font-bold">
                         <tr>
-                          {importFileHeaders.slice(0, 6).map((h, idx) => <th key={idx} className="px-3 py-2 border-b border-r text-xs">{h}</th>)}
-                          {importFileHeaders.length > 6 && <th className="px-3 py-2 border-b border-r text-xs">...</th>}
+                          {importFileHeaders.map((h, idx) => (
+                            <th key={idx} className="px-3 py-2 border-b border-r text-xs whitespace-nowrap">{h}</th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {importFileRows.slice(0, 4).map((row, rIdx) => (
+                        {importFileRows.slice(0, 5).map((row, rIdx) => (
                           <tr key={rIdx}>
-                            {row.slice(0, 6).map((val, cIdx) => <td key={cIdx} className="px-3 py-2 border-r text-xs font-sans text-slate-600">{val || '‎-'}</td>)}
-                            {row.length > 6 && <td className="px-3 py-2 border-r text-xs text-slate-400">...</td>}
+                            {importFileHeaders.map((_, cIdx) => {
+                              const val = row[cIdx];
+                              return (
+                                <td key={cIdx} className="px-3 py-2 border-r text-xs font-sans text-slate-600 whitespace-nowrap">
+                                  {val || '‎-'}
+                                </td>
+                              );
+                            })}
                           </tr>
                         ))}
                       </tbody>
@@ -1740,14 +1779,52 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
             <form onSubmit={handleSaveEmployee} className="p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-caption font-bold text-secondary uppercase mb-1">{t[lang].accessCode} *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-caption font-bold text-secondary uppercase m-0">{t[lang].accessCode} *</label>
+                    {!editingEmployee && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const digits = '0123456789';
+                          const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                          const specials = '!@#';
+                          const allPool = digits + letters + specials;
+                          let code = '';
+                          for (let i = 0; i < 4; i++) {
+                            code += digits.charAt(Math.floor(Math.random() * digits.length));
+                          }
+                          for (let i = 0; i < 4; i++) {
+                            code += letters.charAt(Math.floor(Math.random() * letters.length));
+                          }
+                          for (let i = 0; i < 4; i++) {
+                            code += specials.charAt(Math.floor(Math.random() * specials.length));
+                          }
+                          for (let i = 0; i < 4; i++) {
+                            code += allPool.charAt(Math.floor(Math.random() * allPool.length));
+                          }
+                          const shuffled = code.split('').sort(() => Math.random() - 0.5).join('');
+                          setEmployeeFormData(prev => ({ ...prev, accessCode: shuffled }));
+                        }}
+                        className="text-[10px] font-extrabold text-indigo-600 hover:text-indigo-805 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer select-none"
+                        title={lang === 'en' ? 'Generate unique 16-character code with letters, numbers & select special characters' : 'توليد كود مميز ومحمي بطول 16 رمزاً'}
+                      >
+                        <Key className="w-3 h-3" />
+                        {lang === 'en' ? 'Generate Code' : 'توليد كود'}
+                      </button>
+                    )}
+                  </div>
                   <input 
                     type="text"
                     required
                     disabled={!!editingEmployee}
                     value={employeeFormData.accessCode}
-                    onChange={(e) => setEmployeeFormData(prev => ({ ...prev, accessCode: e.target.value }))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const filtered = val.replace(/[^a-zA-Z0-9@!#]/g, '');
+                      setEmployeeFormData(prev => ({ ...prev, accessCode: filtered }));
+                    }}
                     className="w-full h-11 px-3 border border-slate-200 rounded-xl outline-none focus:border-primary disabled:bg-slate-50 text-slate-800 text-sm font-mono"
+                    placeholder="e.g. EMP123@#"
                   />
                 </div>
 
@@ -2220,7 +2297,7 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
                     {previewSlipItem.earnings && previewSlipItem.earnings.length > 0 ? (
                       previewSlipItem.earnings.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center text-body">
-                          <span className="text-on-surface-variant font-medium">{item.label}</span>
+                          <span className="text-on-surface-variant font-medium">{getTranslatedLabel(item.label, lang)}</span>
                           <span className="font-semibold text-on-background font-mono">{formatAmount(item.val)}</span>
                         </div>
                       ))
@@ -2253,7 +2330,7 @@ Would you like to recalculate and update this slip's Net Pay automatically?`
                     {previewSlipItem.deductions && previewSlipItem.deductions.length > 0 ? (
                       previewSlipItem.deductions.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center text-body">
-                          <span className="text-on-surface-variant font-medium">{item.label}</span>
+                          <span className="text-on-surface-variant font-medium">{getTranslatedLabel(item.label, lang)}</span>
                           <span className="font-semibold text-error font-mono">-{formatAmount(item.val)}</span>
                         </div>
                       ))

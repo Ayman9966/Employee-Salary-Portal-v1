@@ -3,6 +3,7 @@ import { fetchPayrollDetails, PayrollDetails, getFromCache } from '../services/d
 import { PayslipSkeleton } from './Skeleton';
 import { motion } from 'motion/react';
 import { formatAmount } from '../lib/format';
+import { getTranslatedLabel } from '../lib/translations';
 
 interface DocumentViewProps {
   selectedSlip: { month: string; year: number } | null;
@@ -187,7 +188,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
         <div className="p-4 space-y-2">
           {details.earnings.map(item => (
             <div key={item.label} className="flex justify-between items-center text-body">
-              <span className="text-on-surface-variant font-medium">{item.label}</span>
+              <span className="text-on-surface-variant font-medium">{getTranslatedLabel(item.label, lang as 'en' | 'ar')}</span>
               <span className="font-bold text-on-background">{formatAmount(item.val, {maximumFractionDigits: 0})}</span>
             </div>
           ))}
@@ -215,7 +216,7 @@ export const DocumentView: React.FC<DocumentViewProps> = ({
         <div className="p-4 space-y-2">
           {details.deductions.map(item => (
             <div key={item.label} className="flex justify-between items-center text-body">
-              <span className="text-on-surface-variant font-medium">{item.label}</span>
+              <span className="text-on-surface-variant font-medium">{getTranslatedLabel(item.label, lang as 'en' | 'ar')}</span>
               <span className="font-bold text-error">-{formatAmount(item.val, {maximumFractionDigits: 0})}</span>
             </div>
           ))}
