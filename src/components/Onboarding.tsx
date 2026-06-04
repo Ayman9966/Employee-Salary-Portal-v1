@@ -710,7 +710,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               onClick={() => setShowLoginModal(true)}
               className="px-4 py-2 rounded-lg bg-[#003d9b] text-white hover:bg-[#002f74] transition-all text-xs font-bold shadow-sm cursor-pointer"
             >
-              Sign In / Admin Login
+              Sign In
             </button>
           </div>
         </header>
