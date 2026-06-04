@@ -747,7 +747,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="space-y-3 mt-4">
               <p className="text-xs font-bold text-slate-400 separator-dot uppercase tracking-widest flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#003d9b]" /> No
-                servers. No setup fees. No catch.
+                servers. Zero maintenance. Instant deploy.
               </p>
             </div>
 
@@ -758,7 +758,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 onClick={handleLaunchWithDemoSandbox}
                 className="h-12 px-7 bg-[#003d9b] hover:bg-[#002f74] text-white font-extrabold rounded-xl transition-all shadow-md shadow-blue-900/10 hover:shadow-lg active:scale-[0.99] cursor-pointer text-xs sm:text-[13px] tracking-wide flex items-center justify-center gap-2 border border-transparent flex-shrink-0"
               >
-                <span>👉 Try Free Demo — See a Payslip in 30 Seconds</span>
+                <span>👉 Try Live Demo — See a Payslip in 30 Seconds</span>
               </button>
 
               <button
@@ -775,7 +775,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6 text-[11px] text-slate-500 font-medium pt-4 mt-2 border-t border-slate-100">
               <span className="flex items-center gap-1.5 font-bold">
                 <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />{" "}
-                No servers. No setup fees.
+                No messy servers to maintain
               </span>
               <span className="flex items-center gap-1.5 font-bold">
                 <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />{" "}
@@ -1155,15 +1155,15 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
               <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#003d9b] text-xl">
-                🌐
+                📥
               </div>
               <div>
                 <h3 className="font-extrabold text-base text-slate-900 mb-1.5">
-                  EN/AR Options
+                  Smart CSV Mapping
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  Full Arabic and English layouts. RTL-optimized.
-                  Space-efficient.
+                  Drop a CSV. Map columns once — earnings, deductions, taxes —
+                  and reuse forever.
                 </p>
               </div>
             </div>
@@ -1455,6 +1455,67 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           </div>
         </section>
 
+        {/* FAQ Section */}
+        <section className="mb-24 lg:mb-32 max-w-3xl mx-auto space-y-10 px-4 sm:px-0">
+          <div className="text-center space-y-3 mb-8">
+            <h2 className="text-2xl md:text-3xl font-black text-[#041b3c] tracking-tight">
+              FAQ
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: "How fast is the setup process?",
+                a: "Incredibly fast. You simply click deploy. Your entire AirSlip portal will be live in under 3 minutes.",
+              },
+              {
+                q: "Can I use it offline?",
+                a: "Absolutely. Employees can install the AirSlip web app to their phones (as a PWA) and access their previously synced payslips even without an internet connection.",
+              },
+              {
+                q: "Do you store our payroll data?",
+                a: "No. Your data remains strictly within your Google Workspace. The app operates as a direct bridge between your Google Sheet and your employees' devices.",
+              },
+              {
+                q: "Can employees download PDF payslips?",
+                a: "Yes. Every generated payslip comes with a 'Download PDF' button, creating a professional, print-ready document instantly on their device.",
+              },
+              {
+                q: "Can I use my existing payroll CSV format?",
+                a: "Yes! Our Smart CSV Mapping allows you to simply drop in your CSV and map your specific earning, deduction, and tax columns once. You can reuse that mapping format forever.",
+              },
+            ].map((faq, i) => (
+              <details
+                key={i}
+                className="group bg-white rounded-2xl border border-slate-200/75 p-6 shadow-sm [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-slate-800 text-[15px]">
+                  <span>{faq.q}</span>
+                  <span className="transition group-open:rotate-180 text-xl text-slate-400">
+                    <svg
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      className="w-5 h-5"
+                    >
+                      <path d="M6 9l6 6 6-6"></path>
+                    </svg>
+                  </span>
+                </summary>
+                <div className="text-slate-600 font-medium leading-relaxed mt-4 pt-4 border-t border-slate-100 text-sm">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="text-center py-6 border-t border-slate-200/50 space-y-2">
           <p className="text-[11px] text-slate-400">
@@ -1709,7 +1770,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                               Master Spreadsheet Template
                             </p>
                             <p className="text-[10px] text-slate-400 font-bold">
-                              Instantly accessible and free
+                              Instantly accessible and highly secure
                             </p>
                           </div>
                           <a
